@@ -28,6 +28,9 @@ class wxFbxSourcePropertyGrid;
 
 ///////////////////////////////////////////////////////////////////////////
 
+#define wxID_OPEN_BUTTON 1000
+#define wxID_SAVE_BUTTON 1001
+#define wxID_EXIT_BUTTON 1002
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbxConverterDialogBase
@@ -52,12 +55,8 @@ class FbxConverterDialogBase : public wxDialog
 
 	public:
 
-		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, 
-								const wxString& title = wxT("Fbx Converter"), 
-								const wxPoint& pos = wxDefaultPosition, 
-								const wxSize& size = wxSize( 619,474 ), 
-								long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
-		virtual ~FbxConverterDialogBase();
+		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Fbx Converter"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 619,474 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		~FbxConverterDialogBase();
 
 };
 

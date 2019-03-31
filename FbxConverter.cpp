@@ -34,13 +34,15 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bButtonSizer;
 	bButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_OpenFile = new wxButton( this, wxID_ANY, wxT("Open"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_OpenFile = new wxButton( this, wxID_OPEN_BUTTON, wxT("Open"), wxDefaultPosition, wxDefaultSize, 0 );
 	bButtonSizer->Add( m_OpenFile, 1, wxALIGN_CENTER|wxALL, 5 );
 
-	m_SaveFileButton = new wxButton( this, wxID_ANY, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_SaveFileButton = new wxButton( this, wxID_SAVE_BUTTON, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_SaveFileButton->Enable( false );
+
 	bButtonSizer->Add( m_SaveFileButton, 1, wxALIGN_CENTER|wxALL, 5 );
 
-	m_ExitButton = new wxButton( this, wxID_ANY, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_ExitButton = new wxButton( this, wxID_EXIT_BUTTON, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
 	bButtonSizer->Add( m_ExitButton, 1, wxALIGN_CENTER|wxALL, 5 );
 
 

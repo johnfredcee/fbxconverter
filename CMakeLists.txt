@@ -88,6 +88,8 @@ set(
 	version.lib
 )
 
+target_compile_definitions(FbxConverter PUBLIC "FBX_DEFINE_NAMESPACE=0")
+
 target_link_libraries(
     FbxConverter
     debug ${FBXSDK_LIBRARY_DEBUG}

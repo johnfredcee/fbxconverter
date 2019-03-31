@@ -1,12 +1,11 @@
 
+#include <fbxsdk.h>
 #include <wx/wx.h>
 #include <wx/msgdlg.h>
-#include <fbxsdk.h>
 
 #include "FbxConverterApp.h"
 #include "FbxConverter.h"
 #include "FbxConverterDialog.h"
-
 
 // Create a new application object : this macro will allow wxWidgets to create
 // the application object during program execution (it's better than using a
@@ -41,12 +40,23 @@ bool FbxConverterApp::OnInit()
 	FbxString lPath = FbxGetApplicationDirectory();
 	fbxManager->LoadPluginsDirectory(lPath.Buffer());
 
-	//Create an FBX scene. This object holds most objects imported/exported from/to files.
-	FbxScene *fbxScene = FbxScene::Create(fbxManager, "My Scene");
-	if (!fbxScene)
+	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = fbxManager->GetIOPluginRegistry();
+	wxLogDebug("Readers...");
+	int formatCount = fbxIOPluginRegistry->GetReaderFormatCount();
+	for (int formatIndex = 0; formatIndex < formatCount; ++formatIndex)
 	{
-		wxLogDebug("Error: Unable to create FBX scene!");
-		return false;
+		wxString formatExtension(fbxIOPluginRegistry->GetReaderFormatExtension(formatIndex));
+		wxString formatDescription(fbxIOPluginRegistry->GetReaderFormatDescription(formatIndex));
+		wxLogDebug("Format %i is %s (%s)", formatIndex, formatExtension.c_str(), formatDescription.c_str());
+	}
+
+	wxLogDebug("Writers...");
+	formatCount = fbxIOPluginRegistry->GetWriterFormatCount();
+	for (int formatIndex = 0; formatIndex < formatCount; ++formatIndex)
+	{
+		wxString formatExtension(fbxIOPluginRegistry->GetWriterFormatExtension(formatIndex));
+		wxString formatDescription(fbxIOPluginRegistry->GetWriterFormatDescription(formatIndex));
+		wxLogDebug("Format %i is %s (%s)", formatIndex, formatExtension.c_str(), formatDescription.c_str());
 	}
 
 	mainDialog = new FbxConverterDialog(nullptr);
