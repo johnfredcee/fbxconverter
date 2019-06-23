@@ -90,7 +90,7 @@ void FbxConverterDialog::OnSourceFormatSelected(wxCommandEvent& event)
 {
  	long sel = event.GetInt();	
     const wxString selstr = wxString::Format("%ld", sel);
-	wxLogDevug("Source Combobox item %ld selected", sel);
+	wxLogDebug("Source Combobox item %ld selected", sel);
 	currentReaderFormat = sel;
 }
 
