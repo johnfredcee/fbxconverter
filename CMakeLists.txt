@@ -39,9 +39,16 @@ file(
     ${CMAKE_SOURCE_DIR}/*.cpp
 )
 
+file(
+    GLOB
+    fbxconverter_headers
+    ${CMAKE_SOURCE_DIR}/*.h
+)
+
 add_executable(
     FbxConverter WIN32 
 	${fbxconverter_source}
+	${fbxconverter_headers}
 )
 
 target_include_directories(
@@ -88,7 +95,7 @@ set(
 	version.lib
 )
 
-target_compile_definitions(FbxConverter PUBLIC "FBX_DEFINE_NAMESPACE=0")
+target_compile_definitions(FbxConverter PUBLIC "FBX_DEFINE_NAMESPACE=0" "FBX_USE_NAMESPACE=0")
 
 target_link_libraries(
     FbxConverter

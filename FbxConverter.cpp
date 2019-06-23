@@ -22,11 +22,37 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bPropertyGridSizer;
 	bPropertyGridSizer = new wxBoxSizer( wxHORIZONTAL );
 
+	wxBoxSizer* bSizer4;
+	bSizer4 = new wxBoxSizer( wxVERTICAL );
+
+	m_SourceStaticText = new wxStaticText( this, wxID_ANY, wxT("Source File"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_SourceStaticText->Wrap( -1 );
+	bSizer4->Add( m_SourceStaticText, 0, wxALL, 5 );
+
 	m_fbxSourcePropertyGrid = new wxFbxSourcePropertyGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bPropertyGridSizer->Add( m_fbxSourcePropertyGrid, 1, wxALL|wxEXPAND, 5 );
+	bSizer4->Add( m_fbxSourcePropertyGrid, 1, wxALL|wxEXPAND, 5 );
+
+	m_fbxSourceFileComboBox = new wxComboBox( this, wxSOURCEFILE_COMBO_ID, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer4->Add( m_fbxSourceFileComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer5;
+	bSizer5 = new wxBoxSizer( wxVERTICAL );
+
+	m_DestStaticText = new wxStaticText( this, wxID_ANY, wxT("Destination File"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_DestStaticText->Wrap( -1 );
+	bSizer5->Add( m_DestStaticText, 0, wxALL, 5 );
 
 	m_fbxDestPropertyGrid = new wxFbxDestPropertyGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bPropertyGridSizer->Add( m_fbxDestPropertyGrid, 1, wxALL|wxEXPAND, 5 );
+	bSizer5->Add( m_fbxDestPropertyGrid, 1, wxALL|wxEXPAND, 5 );
+
+	m_fbxDestFileComboBox = new wxComboBox( this, wxDESTFILE_COMBO_ID, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer5->Add( m_fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
+
+
+	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );
 
 
 	DialogSizrer->Add( bPropertyGridSizer, 5, wxEXPAND, 5 );

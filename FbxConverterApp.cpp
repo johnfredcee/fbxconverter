@@ -40,6 +40,8 @@ bool FbxConverterApp::OnInit()
 	FbxString lPath = FbxGetApplicationDirectory();
 	fbxManager->LoadPluginsDirectory(lPath.Buffer());
 
+	mainDialog = new FbxConverterDialog(nullptr);
+
 	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = fbxManager->GetIOPluginRegistry();
 	wxLogDebug("Readers...");
 	int formatCount = fbxIOPluginRegistry->GetReaderFormatCount();
@@ -48,6 +50,7 @@ bool FbxConverterApp::OnInit()
 		wxString formatExtension(fbxIOPluginRegistry->GetReaderFormatExtension(formatIndex));
 		wxString formatDescription(fbxIOPluginRegistry->GetReaderFormatDescription(formatIndex));
 		wxLogDebug("Format %i is %s (%s)", formatIndex, formatExtension.c_str(), formatDescription.c_str());
+		mainDialog->AddReaderFormat(formatExtension, formatDescription);
 	}
 
 	wxLogDebug("Writers...");
@@ -57,9 +60,9 @@ bool FbxConverterApp::OnInit()
 		wxString formatExtension(fbxIOPluginRegistry->GetWriterFormatExtension(formatIndex));
 		wxString formatDescription(fbxIOPluginRegistry->GetWriterFormatDescription(formatIndex));
 		wxLogDebug("Format %i is %s (%s)", formatIndex, formatExtension.c_str(), formatDescription.c_str());
+		mainDialog->AddWriterFormat(formatExtension, formatDescription);
 	}
 
-	mainDialog = new FbxConverterDialog(nullptr);
 	mainDialog->ShowModal();
 	return true;
 }

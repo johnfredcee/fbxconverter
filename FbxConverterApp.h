@@ -28,8 +28,6 @@ public:
 	virtual int OnExit() wxOVERRIDE;
 protected:
     virtual wxAppTraits *CreateTraits() wxOVERRIDE { return new FbxConverterAppTraits; }
-
-
 };
 
 
