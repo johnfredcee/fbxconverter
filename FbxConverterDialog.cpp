@@ -86,7 +86,7 @@ wxString FbxConverterDialog::GetWriterDesctiption(int index)
 }
 
 
-void FbxConverterDialog::OnSourceFormatSelected(wxCommandEvent& event)
+void FbxConverterDialog::OnSourceComboBox( wxCommandEvent& event )
 {
  	long sel = event.GetInt();	
     const wxString selstr = wxString::Format("%ld", sel);
@@ -94,13 +94,56 @@ void FbxConverterDialog::OnSourceFormatSelected(wxCommandEvent& event)
 	currentReaderFormat = sel;
 }
 
-void FbxConverterDialog::OnDestFormatSelected(wxCommandEvent& event)
+void FbxConverterDialog::OnSourcePGChanged( wxPropertyGridEvent& event )  
+ {
+ 	wxPGProperty* p = event.GetProperty();
+    wxLogDebug("wxSourcePropertyyGridPage::OnPropertyChange('%s', to value '%s')",
+               p->GetName(),
+               p->GetDisplayedString());	 
+	wxStringClientData *clientData = static_cast<wxStringClientData*>(p->GetClientData());
+	if (clientData != nullptr)
+	{
+		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
+	    FbxIOSettings* fbxIOSettings = fbxManager->GetIOSettings();
+		FbxProperty Property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
+		if (Property.IsValid())
+		{
+			FbxDataType PropertyType(Property.GetPropertyDataType());
+			wxLogDebug("%s is a %s", Property.GetNameAsCStr(), PropertyType.GetName());
+		}
+	}
+ };
+
+
+void FbxConverterDialog::OnDestComboBox( wxCommandEvent& event )
 {
-	 long sel = event.GetInt();
+	long sel = event.GetInt();
     const wxString selstr = wxString::Format("%ld", sel);
 	wxLogDebug("Dest ombobox item %ld selected", sel);
 	currentWriterFormat = sel;
 }
+
+
+ void FbxConverterDialog::OnDestPGChanged( wxPropertyGridEvent& event )  
+ {
+	wxPGProperty* p = event.GetProperty();
+    wxLogDebug("wxDestPropertyGridPage::OnPropertyChange('%s', to value '%s')",
+               p->GetName(),
+               p->GetDisplayedString());	 
+	wxStringClientData *clientData = static_cast<wxStringClientData*>(p->GetClientData());
+	if (clientData != nullptr)
+	{
+		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
+	    FbxIOSettings* fbxIOSettings = fbxManager->GetIOSettings();
+		FbxProperty Property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
+		if (Property.IsValid())
+		{
+			FbxDataType PropertyType(Property.GetPropertyDataType());
+			wxLogDebug("%s is a %s", Property.GetNameAsCStr(), PropertyType.GetName());
+		}
+	}
+ };
+
 
 // wxString FbxConverterDialog::filterString = wxT("FBX (*.fbx)|*.fbx|Collada
 // DAE (*.dae)|*.dae|Alias OBJ (*.obj)|*.obj|AutoCAD DXF (*.dxf)|*.dxf");
@@ -110,34 +153,35 @@ void FbxConverterDialog::LeafProperty(FbxProperty& Property,
                                       wxPropertyCategory* parentCategory) {
   FbxDataType PropertyType(Property.GetPropertyDataType());
   wxLogDebug("%s is a %s", Property.GetNameAsCStr(), PropertyType.GetName());
+  wxPGProperty* propertyNode = nullptr;
   EFbxType Type(PropertyType.GetType());
   switch (Type) {
     case EFbxType::eFbxBool: {
       FbxPropertyT<FbxBool> fbxBool(Property);
       wxBoolProperty* boolProp = new wxBoolProperty(
           Property.GetLabel().Buffer(), Property.GetNameAsCStr(), fbxBool);
-      m_fbxSourcePropertyGrid->AppendIn(parentCategory, boolProp);
+      propertyNode = m_fbxSourcePropertyGrid->AppendIn(parentCategory, boolProp);
       break;
     }
     case EFbxType::eFbxDouble: {
       FbxPropertyT<FbxDouble> fbxDouble(Property);
       wxFloatProperty* floatProp = new wxFloatProperty(
           Property.GetLabel().Buffer(), Property.GetNameAsCStr(), fbxDouble);
-      m_fbxSourcePropertyGrid->AppendIn(parentCategory, floatProp);
+      propertyNode =  m_fbxSourcePropertyGrid->AppendIn(parentCategory, floatProp);
       break;
     }
 	case EFbxType::eFbxInt: {
 		FbxPropertyT<FbxInt> fbxInt(Property);
 		wxIntProperty* intProp = new wxIntProperty(
 			Property.GetLabel().Buffer(), Property.GetNameAsCStr(), fbxInt);
-		m_fbxSourcePropertyGrid->AppendIn(parentCategory, intProp);
+		propertyNode = m_fbxSourcePropertyGrid->AppendIn(parentCategory, intProp);
 		break;
 	}
 	case EFbxType::eFbxString: {
 		FbxPropertyT<FbxString> fbxString(Property);
 		wxStringProperty* strProp = new wxStringProperty(
 			Property.GetLabel().Buffer(), Property.GetNameAsCStr(), fbxString.Get().Buffer());
-		m_fbxSourcePropertyGrid->AppendIn(parentCategory, strProp);
+		propertyNode = m_fbxSourcePropertyGrid->AppendIn(parentCategory, strProp);
 		break;
 	}
 
@@ -145,6 +189,13 @@ void FbxConverterDialog::LeafProperty(FbxProperty& Property,
       wxLogDebug("Unhandled type");
       break;
   }
+
+	if (propertyNode != nullptr) {
+		wxString HName(Property.GetHierarchicalName().Buffer());
+		wxStringClientData* ClientData = new wxStringClientData(HName);
+		propertyNode->SetClientData(ClientData);
+	}
+
 }
 
 void FbxConverterDialog::PropertyWalkAux(FbxProperty& Parent,
@@ -179,16 +230,22 @@ void FbxConverterDialog::PropertyWalkAux(FbxProperty& Parent,
   }
 }
 
+/* walk properties of property grid and fill them in  */
 void FbxConverterDialog::PropertyWalk(FbxProperty& Parent) {
   wxLogDebug("Root Property %s ", Parent.GetNameAsCStr());
+  m_fbxSourcePropertyGrid->Freeze();
+  m_fbxSourcePropertyGrid->Clear();
   wxPropertyCategory* parentCategory =
       new wxPropertyCategory(wxString(Parent.GetLabel()));
   m_fbxSourcePropertyGrid->Append(parentCategory);
   PropertyWalkAux(Parent, parentCategory);
+  m_fbxSourcePropertyGrid->Thaw();
 }
 
+/* called thwn the user hits "open" on the property dialog */
 void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
-  // enumerate the available file formats
+
+  // enumerate the available file formats and build them into a string for the file dialog
   fbxsdk::FbxIOPluginRegistry* fbxIOPluginRegistry =
       fbxManager->GetIOPluginRegistry();
   wxString filterString;
@@ -207,6 +264,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
     }
   }
 
+  /* open the file dialog */
   wxFileDialog openFileDialog(this, "Open File", "", "", filterString.c_str(),
                               wxFD_OPEN | wxFD_FILE_MUST_EXIST);
   if (openFileDialog.ShowModal() == wxID_CANCEL)
@@ -231,7 +289,6 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
     // Get the io settings for the importer
     FbxIOSettings* fbxIOSettings = fbxManager->GetIOSettings();
     FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(IMP_FBX));
-    PropertyWalk(IoSettingsRoot);
     if (fbxImporter->IsFBX()) {
       wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor,
                  FileMinor, FileRevision);
@@ -249,13 +306,13 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
         wxLogDebug("Import name:\"%s\"", takeInfo->mImportName.Buffer());
         wxLogDebug("Import state%s", takeInfo->mSelect ? "true" : "false");
       }
-      IOS_REF.SetBoolProp(IMP_FBX_MATERIAL, true);
-      IOS_REF.SetBoolProp(IMP_FBX_TEXTURE, true);
-      IOS_REF.SetBoolProp(IMP_FBX_LINK, true);
-      IOS_REF.SetBoolProp(IMP_FBX_SHAPE, true);
-      IOS_REF.SetBoolProp(IMP_FBX_GOBO, true);
-      IOS_REF.SetBoolProp(IMP_FBX_ANIMATION, true);
-      IOS_REF.SetBoolProp(IMP_FBX_GLOBAL_SETTINGS, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_MATERIAL, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_TEXTURE, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_LINK, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_SHAPE, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_GOBO, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_ANIMATION, true);
+      fbxIOSettings->SetBoolProp(IMP_FBX_GLOBAL_SETTINGS, true);
       FbxScene* fbxScene =
           FbxScene::Create(fbxManager, openFileDialog.GetFilename().c_str());
       if (fbxScene) {
@@ -276,6 +333,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
             }
             mainScene = fbxScene;
             m_SaveFileButton->Enable(true);
+		    PropertyWalk(IoSettingsRoot);
           }
         } else {
           wxLogDebug("Fbx scene inport failed.");
@@ -295,6 +353,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent& event) {
   event.Skip();
 }
 
+/* called when the user clicks save on the dialog */
 void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent& event) {
   wxString filterString;
   fbxsdk::FbxIOPluginRegistry* fbxIOPluginRegistry =

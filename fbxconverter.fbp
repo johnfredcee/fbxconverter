@@ -171,7 +171,7 @@
                                         <property name="font"></property>
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
-                                        <property name="id">wxID_ANY</property>
+                                        <property name="id">wxID_SOURCE_PG</property>
                                         <property name="include_advanced">1</property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
@@ -197,6 +197,7 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
+                                        <event name="OnPropertyGridChanged">OnSourcePGChanged</event>
                                     </object>
                                 </object>
                                 <object class="sizeritem" expanded="1">
@@ -231,7 +232,7 @@
                                         <property name="font"></property>
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
-                                        <property name="id">wxSOURCEFILE_COMBO_ID</property>
+                                        <property name="id">wxID_SOURCEFILE_COMBO</property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
                                         <property name="maximum_size"></property>
@@ -262,6 +263,7 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
+                                        <event name="OnCombobox">OnSourceComboBox</event>
                                     </object>
                                 </object>
                             </object>
@@ -369,7 +371,7 @@
                                         <property name="font"></property>
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
-                                        <property name="id">wxID_ANY</property>
+                                        <property name="id">wxID_DEST_PG</property>
                                         <property name="include_advanced">1</property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
@@ -395,6 +397,7 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
+                                        <event name="OnPropertyGridChanged">OnDestPGChanged</event>
                                     </object>
                                 </object>
                                 <object class="sizeritem" expanded="0">
@@ -429,7 +432,7 @@
                                         <property name="font"></property>
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
-                                        <property name="id">wxDESTFILE_COMBO_ID</property>
+                                        <property name="id">wxID_DESTFILE_COMBO</property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
                                         <property name="maximum_size"></property>
@@ -460,6 +463,7 @@
                                         <property name="window_extra_style"></property>
                                         <property name="window_name"></property>
                                         <property name="window_style"></property>
+                                        <event name="OnCombobox">OnDestComboBox</event>
                                     </object>
                                 </object>
                             </object>

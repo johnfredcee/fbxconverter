@@ -30,11 +30,13 @@ class wxFbxSourcePropertyGrid;
 
 ///////////////////////////////////////////////////////////////////////////
 
-#define wxSOURCEFILE_COMBO_ID 1000
-#define wxDESTFILE_COMBO_ID 1001
-#define wxID_OPEN_BUTTON 1002
-#define wxID_SAVE_BUTTON 1003
-#define wxID_EXIT_BUTTON 1004
+#define wxID_SOURCE_PG 1000
+#define wxID_SOURCEFILE_COMBO 1001
+#define wxID_DEST_PG 1002
+#define wxID_DESTFILE_COMBO 1003
+#define wxID_OPEN_BUTTON 1004
+#define wxID_SAVE_BUTTON 1005
+#define wxID_EXIT_BUTTON 1006
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbxConverterDialogBase
@@ -56,6 +58,10 @@ class FbxConverterDialogBase : public wxDialog
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void CloseMainDialog( wxCloseEvent& event ) { event.Skip(); }
+		virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
+		virtual void OnSourceComboBox( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDestPGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
+		virtual void OnDestComboBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnOpenFbxFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveFbxFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnExitApp( wxCommandEvent& event ) { event.Skip(); }

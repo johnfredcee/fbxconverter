@@ -42,6 +42,7 @@ bool FbxConverterApp::OnInit()
 
 	mainDialog = new FbxConverterDialog(nullptr);
 
+	/* get the reader formats from the io regisgtry */
 	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = fbxManager->GetIOPluginRegistry();
 	wxLogDebug("Readers...");
 	int formatCount = fbxIOPluginRegistry->GetReaderFormatCount();
@@ -53,6 +54,7 @@ bool FbxConverterApp::OnInit()
 		mainDialog->AddReaderFormat(formatExtension, formatDescription);
 	}
 
+	/* get the writer format from the io registry */
 	wxLogDebug("Writers...");
 	formatCount = fbxIOPluginRegistry->GetWriterFormatCount();
 	for (int formatIndex = 0; formatIndex < formatCount; ++formatIndex)

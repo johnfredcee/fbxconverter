@@ -27,26 +27,26 @@ class FbxConverterDialog : public FbxConverterDialogBase
 {
 	FbxScene *mainScene;
 
-  protected:
+protected:
 	// Virtual event handlers, overide them in your derived class
 	virtual void CloseMainDialog(wxCloseEvent &event) wxOVERRIDE
 	{
 		event.Skip();
 	}
 
+	virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) wxOVERRIDE;
+	virtual void OnSourceComboBox( wxCommandEvent& event ) wxOVERRIDE;
 	virtual void OnOpenFbxFile(wxCommandEvent &event) wxOVERRIDE;
-	
+
+	virtual void OnDestPGChanged( wxPropertyGridEvent& event )  wxOVERRIDE;
+	virtual void OnDestComboBox( wxCommandEvent& event ) wxOVERRIDE;
 	virtual void OnSaveFbxFile(wxCommandEvent &event) wxOVERRIDE;
-	
+
 	virtual void OnExitApp(wxCommandEvent &event)
 	{
 		Close();
 		event.Skip();
 	}
-
-	void OnSourceFormatSelected(wxCommandEvent& event);
-
-	void OnDestFormatSelected(wxCommandEvent& event);
 
 	int currentReaderFormat;
 	std::vector<wxString> readerFormatExtension;
@@ -55,7 +55,7 @@ class FbxConverterDialog : public FbxConverterDialogBase
 	std::vector<wxString> writerFormatExtension;
 	std::vector<wxString> writerFormatDescription;
 
-  public:
+public:
 	FbxConverterDialog(wxWindow *parent, wxWindowID id = wxID_ANY,
 					   const wxString &title = wxT("Fbx Converter"),
 					   const wxPoint &pos = wxDefaultPosition,
@@ -66,15 +66,12 @@ class FbxConverterDialog : public FbxConverterDialogBase
 	{
 		m_fbxDestFileComboBox->Clear();
 		m_fbxSourceFileComboBox->Clear();
-		m_fbxDestFileComboBox->Bind(wxEVT_COMMAND_COMBOBOX_SELECTED,  &FbxConverterDialog::OnDestFormatSelected, this);
-		m_fbxSourceFileComboBox->Bind(wxEVT_COMMAND_COMBOBOX_SELECTED, &FbxConverterDialog::OnSourceFormatSelected, this);
 		currentReaderFormat = 0;
 		currentWriterFormat = 0;
 	};
+	
 	virtual ~FbxConverterDialog()
 	{
-		m_fbxDestFileComboBox->Unbind(wxEVT_COMMAND_COMBOBOX_SELECTED, &FbxConverterDialog::OnDestFormatSelected, this);
-		m_fbxSourceFileComboBox->Unbind(wxEVT_COMMAND_COMBOBOX_SELECTED, &FbxConverterDialog::OnSourceFormatSelected, this);
 		if (mainScene != nullptr)
 		{
 			mainScene->Destroy();
@@ -87,12 +84,11 @@ class FbxConverterDialog : public FbxConverterDialogBase
 	wxString GetWriterExtension(int index);
 	wxString GetReaderDescription(int index);
 	wxString GetWriterDesctiption(int index);
-	
+
 private:
+	void LeafProperty(FbxProperty &Property, wxPropertyCategory *parentCategory);
 
-	void LeafProperty(FbxProperty& Property, wxPropertyCategory* parentCategory);
+	void PropertyWalkAux(FbxProperty &Parent, wxPropertyCategory *category);
 
-	void PropertyWalkAux(FbxProperty& Parent, wxPropertyCategory *category);
-
-	void PropertyWalk(FbxProperty& Parent);
+	void PropertyWalk(FbxProperty &Parent);
 };
