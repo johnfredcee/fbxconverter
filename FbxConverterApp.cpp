@@ -14,9 +14,8 @@
 // not wxApp)
 wxIMPLEMENT_APP(FbxConverterApp);
 
-FbxManager *fbxManager;
-
-FbxConverterDialog *mainDialog;
+FbxManager* FbxConverterApp::fbxManager = nullptr;
+FbxConverterDialog* FbxConverterApp::mainDialog = nullptr;
 
 // `Main program' equivalent, creating windows and returning main app frame
 bool FbxConverterApp::OnInit()
@@ -71,8 +70,6 @@ bool FbxConverterApp::OnInit()
 
 int FbxConverterApp::OnExit()
 {
-	mainDialog->Destroy();
-	mainDialog = nullptr;
 	if (fbxManager != nullptr)
 	{
 		fbxManager->Destroy();
@@ -87,12 +84,9 @@ int FbxConverterApp::OnExit()
 class FbxConverterLogGui : public wxLogGui
 {
 private:
-	virtual void DoShowSingleLogMessage(const wxString &message,
-										const wxString &title,
-										int style) wxOVERRIDE
+	virtual void DoShowSingleLogMessage(const wxString &message, const wxString &title,	int style) wxOVERRIDE
 	{
-		wxMessageDialog dlg(NULL, message, title,
-							wxOK | wxCANCEL | wxCANCEL_DEFAULT | style);
+		wxMessageDialog dlg(NULL, message, title, wxOK | wxCANCEL | wxCANCEL_DEFAULT | style);
 		dlg.SetOKCancelLabels(wxID_COPY, wxID_OK);
 		dlg.SetExtendedMessage("Note that this is a custom log dialog.");
 		dlg.ShowModal();

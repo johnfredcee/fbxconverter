@@ -14,11 +14,6 @@ class FbxConverterDialog : public FbxConverterDialogBase
 	FbxScene *mainScene;
 
 protected:
-	// Virtual event handlers, overide them in your derived class
-	virtual void CloseMainDialog(wxCloseEvent &event) wxOVERRIDE
-	{
-		event.Skip();
-	}
 
 	virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) wxOVERRIDE;
 	virtual void OnSourceComboBox( wxCommandEvent& event ) wxOVERRIDE;
@@ -29,12 +24,9 @@ protected:
 	virtual void OnSaveFbxFile(wxCommandEvent &event) wxOVERRIDE;
 
 	virtual void InitDialog( wxInitDialogEvent& event ) wxOVERRIDE;
-	
-	virtual void OnExitApp(wxCommandEvent &event)
-	{
-		Close();
-		event.Skip();
-	}
+
+	virtual void CloseMainDialog(wxCloseEvent &event) wxOVERRIDE;
+	virtual void OnExitApp(wxCommandEvent &event) wxOVERRIDE;
 
 	int currentReaderFormat;
 	std::vector<wxString> readerFormatExtension;

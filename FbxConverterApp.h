@@ -11,6 +11,7 @@
 
 #include <wx/apptrait.h>
 
+class FbxConverterDialog;
 
 // Custom application traits class which we use to override the default log
 // target creation
@@ -26,6 +27,10 @@ class FbxConverterApp: public wxApp
 public:
     virtual bool OnInit() wxOVERRIDE;
 	virtual int OnExit() wxOVERRIDE;
+
+	static FbxManager *fbxManager;
+	static FbxConverterDialog *mainDialog;
+
 protected:
     virtual wxAppTraits *CreateTraits() wxOVERRIDE { return new FbxConverterAppTraits; }
 };

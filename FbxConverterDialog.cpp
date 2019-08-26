@@ -8,6 +8,7 @@
 #include "FbxConverter.h"
 #include "SourcePropertyGrid.h"
 #include "FbxConverterDialog.h"
+#include "FbxConverterApp.h"
 
 FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style)
 	: mainScene(nullptr),
@@ -120,13 +121,13 @@ void FbxConverterDialog::OnSourcePGChanged(wxPropertyGridEvent &event)
 	if (clientData != nullptr)
 	{
 		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
-		FbxIOSettings *fbxIOSettings = fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		FbxProperty property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
 		if (property.IsValid())
 		{
 			FbxDataType propertyType(property.GetPropertyDataType());
 			wxLogDebug("%s is a %s", property.GetNameAsCStr(), propertyType.GetName());
-		}
+		} 
 	}
 };
 
@@ -140,7 +141,7 @@ void FbxConverterDialog::OnDestPGChanged(wxPropertyGridEvent &event)
 	if (clientData != nullptr)
 	{
 		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
-		FbxIOSettings *fbxIOSettings = fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		FbxProperty property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
 		if (property.IsValid())
 		{
@@ -290,7 +291,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 	wxLogDebug("Autodesk FBX SDK Version %d:%d:%d", SDKMajor, SDKMinor, SDKRevision);
 
 	// enumerate the available file formats and build them into a string for the file dialog
-	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = fbxManager->GetIOPluginRegistry();
+	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = FbxConverterApp::fbxManager->GetIOPluginRegistry();
 	wxString filterString;
 	wxString formatExtension(fbxIOPluginRegistry->GetReaderFormatExtension(currentReaderFormat));
 	wxString formatDescription(fbxIOPluginRegistry->GetReaderFormatDescription(currentReaderFormat));
@@ -307,17 +308,17 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 	wxLogDebug("Reading %s", fileToImport.c_str());
 	
 	// Create an importer.
-	FbxImporter *fbxImporter = FbxImporter::Create(fbxManager, "");
+	FbxImporter *fbxImporter = FbxImporter::Create(FbxConverterApp::fbxManager, "");
 
 	// Initialize the importer by providing a filename.
-	const bool bImportStatus = fbxImporter->Initialize(openFileDialog.GetPath().c_str(), -1, fbxManager->GetIOSettings());
+	const bool bImportStatus = fbxImporter->Initialize(openFileDialog.GetPath().c_str(), -1, FbxConverterApp::fbxManager->GetIOSettings());
 	if (bImportStatus)
 	{
 		int FileMajor, FileMinor, FileRevision;
 		fbxImporter->GetFileVersion(FileMajor, FileMinor, FileRevision);
 		
 		// Get the io settings for the importer
-		FbxIOSettings *fbxIOSettings = fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		if (fbxImporter->IsFBX())
 		{
 			wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor, FileMinor, FileRevision);
@@ -336,7 +337,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 				wxLogDebug("Import state%s", takeInfo->mSelect ? "true" : "false");
 			}
 		}
-		FbxScene *fbxScene = FbxScene::Create(fbxManager, openFileDialog.GetFilename().c_str());
+		FbxScene *fbxScene = FbxScene::Create(FbxConverterApp::fbxManager, openFileDialog.GetFilename().c_str());
 		if (fbxScene)
 		{
 			bool importStatus = fbxImporter->Import(fbxScene);
@@ -389,7 +390,7 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 {
 	wxString filterString;
 
-	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = fbxManager->GetIOPluginRegistry();
+	fbxsdk::FbxIOPluginRegistry *fbxIOPluginRegistry = FbxConverterApp::fbxManager->GetIOPluginRegistry();
 	wxString formatExtension(fbxIOPluginRegistry->GetWriterFormatExtension(currentWriterFormat));
 	wxString formatDescription(fbxIOPluginRegistry->GetWriterFormatDescription(currentWriterFormat));
 	filterString.Append(wxString::Format("%s|(*.%s)", formatDescription, formatExtension));
@@ -402,9 +403,9 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 	wxString fileToExport(saveFileDialog.GetPath());
 	wxLogDebug("Writing %s", fileToExport.c_str());
 
-	FbxExporter *fbxExporter = FbxExporter::Create(fbxManager, "");
+	FbxExporter *fbxExporter = FbxExporter::Create(FbxConverterApp::fbxManager, "");
 	int saveFormatIndex = saveFileDialog.GetFilterIndex();
-	bool bExporterInitialised = fbxExporter->Initialize(fileToExport.c_str(), saveFormatIndex, fbxManager->GetIOSettings());
+	bool bExporterInitialised = fbxExporter->Initialize(fileToExport.c_str(), saveFormatIndex, FbxConverterApp::fbxManager->GetIOSettings());
 	if (bExporterInitialised)
 	{
 		if (fbxExporter->IsFBX())
@@ -423,6 +424,20 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 	}
 }
 
+void FbxConverterDialog::OnExitApp(wxCommandEvent& event)
+{
+	FbxConverterApp::mainDialog->Close();
+	FbxConverterApp::mainDialog->Destroy();
+	event.Skip();
+}
+
+void FbxConverterDialog::CloseMainDialog(wxCloseEvent& event)
+{
+	FbxConverterApp::mainDialog->Close();
+	FbxConverterApp::mainDialog->Destroy();
+	event.Skip();
+}
+
 void FbxConverterDialog::UpdateSourcePG()
 {
 	wxString formatExtension = readerFormatExtension[currentReaderFormat];
@@ -431,7 +446,7 @@ void FbxConverterDialog::UpdateSourcePG()
 	{
 		// TODO : Have the property dialog handle vectors of properties, not single item
 		wxString propertyPath = readerFormatOptions[0];
-		FbxIOSettings *fbxIOSettings = fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		// TODO : Property walk over destination grid, also
 		FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(propertyPath.c_str()));
 		PropertyWalk(fbxSourcePropertyGrid, IoSettingsRoot);
@@ -450,7 +465,7 @@ void FbxConverterDialog::UpdateDestPG()
 	{
 		// TODO : Have the property dialog handle vectors of properties, not single item
 		wxString propertyPath = writerFormatOptions[0];
-		FbxIOSettings *fbxIOSettings = fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		// TODO : Property walk over destination grid, also
 		FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(propertyPath.c_str()));
 		PropertyWalk(fbxDestPropertyGrid, IoSettingsRoot);
