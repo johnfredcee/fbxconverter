@@ -25,15 +25,15 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxVERTICAL );
 
-	m_SourceStaticText = new wxStaticText( this, wxID_ANY, wxT("Source File"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_SourceStaticText->Wrap( -1 );
-	bSizer4->Add( m_SourceStaticText, 0, wxALL, 5 );
+	sourceStaticText = new wxStaticText( this, wxID_ANY, wxT("Source File"), wxDefaultPosition, wxDefaultSize, 0 );
+	sourceStaticText->Wrap( -1 );
+	bSizer4->Add( sourceStaticText, 0, wxALL, 5 );
 
-	m_fbxSourcePropertyGrid = new wxFbxSourcePropertyGrid(this, wxID_SOURCE_PG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bSizer4->Add( m_fbxSourcePropertyGrid, 1, wxALL|wxEXPAND, 5 );
+	fbxSourcePropertyGrid = new wxFbxSourcePropertyGrid(this, wxID_SOURCE_PG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
+	bSizer4->Add( fbxSourcePropertyGrid, 1, wxALL|wxEXPAND, 5 );
 
-	m_fbxSourceFileComboBox = new wxComboBox( this, wxID_SOURCEFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	bSizer4->Add( m_fbxSourceFileComboBox, 0, wxALL|wxEXPAND, 5 );
+	fbxSourceFileComboBox = new wxComboBox( this, wxID_SOURCEFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer4->Add( fbxSourceFileComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
 	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
@@ -41,15 +41,15 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bSizer5;
 	bSizer5 = new wxBoxSizer( wxVERTICAL );
 
-	m_DestStaticText = new wxStaticText( this, wxID_ANY, wxT("Destination File"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_DestStaticText->Wrap( -1 );
-	bSizer5->Add( m_DestStaticText, 0, wxALL, 5 );
+	destStaticText = new wxStaticText( this, wxID_ANY, wxT("Destination File"), wxDefaultPosition, wxDefaultSize, 0 );
+	destStaticText->Wrap( -1 );
+	bSizer5->Add( destStaticText, 0, wxALL, 5 );
 
-	m_fbxDestPropertyGrid = new wxFbxDestPropertyGrid(this, wxID_DEST_PG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bSizer5->Add( m_fbxDestPropertyGrid, 1, wxALL|wxEXPAND, 5 );
+	fbxDestPropertyGrid = new wxFbxDestPropertyGrid(this, wxID_DEST_PG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
+	bSizer5->Add( fbxDestPropertyGrid, 1, wxALL|wxEXPAND, 5 );
 
-	m_fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	bSizer5->Add( m_fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
+	fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer5->Add( fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
 	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );
@@ -60,16 +60,16 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	wxBoxSizer* bButtonSizer;
 	bButtonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-	m_OpenFile = new wxButton( this, wxID_OPEN_BUTTON, wxT("Open"), wxDefaultPosition, wxDefaultSize, 0 );
-	bButtonSizer->Add( m_OpenFile, 1, wxALIGN_CENTER|wxALL, 5 );
+	openFileButton = new wxButton( this, wxID_OPEN_BUTTON, wxT("Open"), wxDefaultPosition, wxDefaultSize, 0 );
+	bButtonSizer->Add( openFileButton, 1, wxALIGN_CENTER|wxALL, 5 );
 
-	m_SaveFileButton = new wxButton( this, wxID_SAVE_BUTTON, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_SaveFileButton->Enable( false );
+	saveFileButton = new wxButton( this, wxID_SAVE_BUTTON, wxT("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	saveFileButton->Enable( false );
 
-	bButtonSizer->Add( m_SaveFileButton, 1, wxALIGN_CENTER|wxALL, 5 );
+	bButtonSizer->Add( saveFileButton, 1, wxALIGN_CENTER|wxALL, 5 );
 
-	m_ExitButton = new wxButton( this, wxID_EXIT_BUTTON, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
-	bButtonSizer->Add( m_ExitButton, 1, wxALIGN_CENTER|wxALL, 5 );
+	exitButton = new wxButton( this, wxID_EXIT_BUTTON, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
+	bButtonSizer->Add( exitButton, 1, wxALIGN_CENTER|wxALL, 5 );
 
 
 	DialogSizrer->Add( bButtonSizer, 1, wxEXPAND, 5 );
@@ -82,25 +82,27 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 
 	// Connect Events
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( FbxConverterDialogBase::CloseMainDialog ) );
-	m_fbxSourcePropertyGrid->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnSourcePGChanged ), NULL, this );
-	m_fbxSourceFileComboBox->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnSourceComboBox ), NULL, this );
-	m_fbxDestPropertyGrid->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnDestPGChanged ), NULL, this );
-	m_fbxDestFileComboBox->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnDestComboBox ), NULL, this );
-	m_OpenFile->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnOpenFbxFile ), NULL, this );
-	m_SaveFileButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnSaveFbxFile ), NULL, this );
-	m_ExitButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnExitApp ), NULL, this );
+	this->Connect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( FbxConverterDialogBase::InitDialog ) );
+	fbxSourcePropertyGrid->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnSourcePGChanged ), NULL, this );
+	fbxSourceFileComboBox->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnSourceComboBox ), NULL, this );
+	fbxDestPropertyGrid->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnDestPGChanged ), NULL, this );
+	fbxDestFileComboBox->Connect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnDestComboBox ), NULL, this );
+	openFileButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnOpenFbxFile ), NULL, this );
+	saveFileButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnSaveFbxFile ), NULL, this );
+	exitButton->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnExitApp ), NULL, this );
 }
 
 FbxConverterDialogBase::~FbxConverterDialogBase()
 {
 	// Disconnect Events
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( FbxConverterDialogBase::CloseMainDialog ) );
-	m_fbxSourcePropertyGrid->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnSourcePGChanged ), NULL, this );
-	m_fbxSourceFileComboBox->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnSourceComboBox ), NULL, this );
-	m_fbxDestPropertyGrid->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnDestPGChanged ), NULL, this );
-	m_fbxDestFileComboBox->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnDestComboBox ), NULL, this );
-	m_OpenFile->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnOpenFbxFile ), NULL, this );
-	m_SaveFileButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnSaveFbxFile ), NULL, this );
-	m_ExitButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnExitApp ), NULL, this );
+	this->Disconnect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( FbxConverterDialogBase::InitDialog ) );
+	fbxSourcePropertyGrid->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnSourcePGChanged ), NULL, this );
+	fbxSourceFileComboBox->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnSourceComboBox ), NULL, this );
+	fbxDestPropertyGrid->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( FbxConverterDialogBase::OnDestPGChanged ), NULL, this );
+	fbxDestFileComboBox->Disconnect( wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler( FbxConverterDialogBase::OnDestComboBox ), NULL, this );
+	openFileButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnOpenFbxFile ), NULL, this );
+	saveFileButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnSaveFbxFile ), NULL, this );
+	exitButton->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( FbxConverterDialogBase::OnExitApp ), NULL, this );
 
 }

@@ -46,18 +46,19 @@ class FbxConverterDialogBase : public wxDialog
 	private:
 
 	protected:
-		wxStaticText* m_SourceStaticText;
-		wxFbxSourcePropertyGrid* m_fbxSourcePropertyGrid;
-		wxComboBox* m_fbxSourceFileComboBox;
-		wxStaticText* m_DestStaticText;
-		wxFbxDestPropertyGrid* m_fbxDestPropertyGrid;
-		wxComboBox* m_fbxDestFileComboBox;
-		wxButton* m_OpenFile;
-		wxButton* m_SaveFileButton;
-		wxButton* m_ExitButton;
+		wxStaticText* sourceStaticText;
+		wxFbxSourcePropertyGrid* fbxSourcePropertyGrid;
+		wxComboBox* fbxSourceFileComboBox;
+		wxStaticText* destStaticText;
+		wxFbxDestPropertyGrid* fbxDestPropertyGrid;
+		wxComboBox* fbxDestFileComboBox;
+		wxButton* openFileButton;
+		wxButton* saveFileButton;
+		wxButton* exitButton;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void CloseMainDialog( wxCloseEvent& event ) { event.Skip(); }
+		virtual void InitDialog( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
 		virtual void OnSourceComboBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDestPGChanged( wxPropertyGridEvent& event ) { event.Skip(); }

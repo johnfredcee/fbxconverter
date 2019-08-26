@@ -1,27 +1,13 @@
 
 #pragma once
 
+#include <map>
 #include <wx/wx.h>
 #include <wx/filedlg.h>
 #include "FbxConverter.h"
 
-// const char* lFileTypes[] =
-// {
-//     "_dae.dae",            "Collada DAE (*.dae)",
-//     "_fbx7binary.fbx", "FBX binary (*.fbx)",
-//     "_fbx7ascii.fbx",  "FBX ascii (*.fbx)",
-//     "_fbx6binary.fbx", "FBX 6.0 binary (*.fbx)",
-//     "_fbx6ascii.fbx",  "FBX 6.0 ascii (*.fbx)",
-//     "_obj.obj",            "Alias OBJ (*.obj)",
-//     "_dxf.dxf",            "AutoCAD DXF (*.dxf)"
-// };
 
 extern FbxManager *fbxManager;
-
-#ifdef IOS_REF
-#undef IOS_REF
-#define IOS_REF (*(fbxManager->GetIOSettings()))
-#endif
 
 class FbxConverterDialog : public FbxConverterDialogBase
 {
@@ -42,6 +28,8 @@ protected:
 	virtual void OnDestComboBox( wxCommandEvent& event ) wxOVERRIDE;
 	virtual void OnSaveFbxFile(wxCommandEvent &event) wxOVERRIDE;
 
+	virtual void InitDialog( wxInitDialogEvent& event ) wxOVERRIDE;
+	
 	virtual void OnExitApp(wxCommandEvent &event)
 	{
 		Close();
@@ -51,24 +39,19 @@ protected:
 	int currentReaderFormat;
 	std::vector<wxString> readerFormatExtension;
 	std::vector<wxString> readerFormatExtensionDescription;
+	std::map<wxString, std::vector<wxString>> readerOptionsMap;
+
 	int currentWriterFormat;
 	std::vector<wxString> writerFormatExtension;
 	std::vector<wxString> writerFormatDescription;
+	std::map<wxString, std::vector<wxString>> writerOptionsMap;
 
 public:
 	FbxConverterDialog(wxWindow *parent, wxWindowID id = wxID_ANY,
 					   const wxString &title = wxT("Fbx Converter"),
 					   const wxPoint &pos = wxDefaultPosition,
 					   const wxSize &size = wxSize(619, 474),
-					   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-		: mainScene(nullptr),
-		  FbxConverterDialogBase(parent, id, title, pos, size, style)
-	{
-		m_fbxDestFileComboBox->Clear();
-		m_fbxSourceFileComboBox->Clear();
-		currentReaderFormat = 0;
-		currentWriterFormat = 0;
-	};
+					   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
 	
 	virtual ~FbxConverterDialog()
 	{
@@ -86,9 +69,9 @@ public:
 	wxString GetWriterDesctiption(int index);
 
 private:
-	void LeafProperty(FbxProperty &Property, wxPropertyCategory *parentCategory);
-
-	void PropertyWalkAux(FbxProperty &Parent, wxPropertyCategory *category);
-
-	void PropertyWalk(FbxProperty &Parent);
+	void UpdateSourcePG();
+	void UpdateDestPG();
+	void LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory);
+	void PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProperty &parent, wxPropertyCategory *category);
+	void PropertyWalk(wxPropertyGrid* propertyGrid, FbxProperty &parent);
 };

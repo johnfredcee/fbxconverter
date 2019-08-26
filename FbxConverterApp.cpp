@@ -72,9 +72,11 @@ bool FbxConverterApp::OnInit()
 int FbxConverterApp::OnExit()
 {
 	mainDialog->Destroy();
+	mainDialog = nullptr;
 	if (fbxManager != nullptr)
 	{
 		fbxManager->Destroy();
+		fbxManager = nullptr;
 	}
 	return wxApp::OnExit();
 }
@@ -84,7 +86,7 @@ int FbxConverterApp::OnExit()
 
 class FbxConverterLogGui : public wxLogGui
 {
-  private:
+private:
 	virtual void DoShowSingleLogMessage(const wxString &message,
 										const wxString &title,
 										int style) wxOVERRIDE
