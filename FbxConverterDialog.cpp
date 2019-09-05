@@ -112,8 +112,8 @@ void FbxConverterDialog::OnDestComboBox(wxCommandEvent &event)
 	UpdateDestPG();
 }
 
-/* import options have been changed - nned to transfer from wx to fbx */
-void FbxConverterDialog::OnSourcePGChanged(wxPropertyGridEvent &event)
+/*  options in property grid have been changed - nned to transfer from wx to fbx */
+void FbxConverterDialog::OnPGChanged(wxPropertyGridEvent &event)
 {
 	wxPGProperty *p = event.GetProperty();
 	wxLogDebug("wxSourcePropertyyGridPage::OnPropertyChange('%s', to value '%s')", p->GetName(), p->GetDisplayedString());
@@ -127,61 +127,43 @@ void FbxConverterDialog::OnSourcePGChanged(wxPropertyGridEvent &event)
 		{
 			FbxDataType propertyType(property.GetPropertyDataType());
 			wxLogDebug("%s is a %s", property.GetNameAsCStr(), propertyType.GetName());
+			EFbxType propType(propertyType.GetType());
+			switch (propType)
+			{
+				case EFbxType::eFbxBool:
+				{
+					bool value = p->GetValue();
+					property.Set(value);
+					break;
+				}
+				case EFbxType::eFbxDouble:
+				{
+					double value = p->GetValue();
+					property.Set(value);
+					break;
+				}
+				case EFbxType::eFbxInt:
+				{
+					long value = p->GetValue();
+					property.Set(value);
+					break;
+				}
+				case EFbxType::eFbxString:
+				{
+					wxString value = p->GetValue();
+					property.Set(value.c_str());
+					break;
+				}
+				default:
+				{
+					wxLogDebug("Property %s is unsettable\n ", clientData->GetData().c_str());
+				}
+			}
 		} 
 	}
 };
 
 
-/* export properties have been changed - need to transfer from fbx to wx */
-void FbxConverterDialog::OnDestPGChanged(wxPropertyGridEvent &event)
-{
-	wxPGProperty *p = event.GetProperty();
-	wxLogDebug("wxDestPropertyGridPage::OnPropertyChange('%s', to value '%s')", p->GetName(), p->GetDisplayedString());
-	wxStringClientData *clientData = static_cast<wxStringClientData *>(p->GetClientData());
-	if (clientData != nullptr)
-	{
-		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
-		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
-		FbxProperty property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
-		if (property.IsValid())
-		{
-			FbxDataType propertyType(property.GetPropertyDataType());
-			EFbxType propType(propertyType.GetType());
-			switch (propType)
-			{
-			case EFbxType::eFbxBool:
-			{
-				bool value = p->GetValue();
-				property.Set(value);
-				break;
-			}
-			case EFbxType::eFbxDouble:
-			{
-				double value = p->GetValue();
-				property.Set(value);
-				break;
-			}
-			case EFbxType::eFbxInt:
-			{
-				long value = p->GetValue();
-				property.Set(value);
-				break;
-			}
-			case EFbxType::eFbxString:
-			{
-				wxString value = p->GetValue();
-				property.Set(value.c_str());
-				break;
-			}
-			default:
-			{
-				wxLogDebug("Property %s is unsettable\n ", clientData->GetData().c_str());
-			}
-			}
-			wxLogDebug("%s is a %s", property.GetNameAsCStr(), propertyType.GetName());
-		}
-	}
-};
 
 void FbxConverterDialog::LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory)
 {
@@ -363,6 +345,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					}
 					mainScene = fbxScene;
 					saveFileButton->Enable(true);
+					UpdateSourcePG();
 				}
 			}
 			else

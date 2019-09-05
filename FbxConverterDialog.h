@@ -15,11 +15,10 @@ class FbxConverterDialog : public FbxConverterDialogBase
 
 protected:
 
-	virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) wxOVERRIDE;
 	virtual void OnSourceComboBox( wxCommandEvent& event ) wxOVERRIDE;
 	virtual void OnOpenFbxFile(wxCommandEvent &event) wxOVERRIDE;
 
-	virtual void OnDestPGChanged( wxPropertyGridEvent& event )  wxOVERRIDE;
+	virtual void OnPGChanged( wxPropertyGridEvent& event )  wxOVERRIDE;
 	virtual void OnDestComboBox( wxCommandEvent& event ) wxOVERRIDE;
 	virtual void OnSaveFbxFile(wxCommandEvent &event) wxOVERRIDE;
 

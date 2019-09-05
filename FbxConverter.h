@@ -9,9 +9,6 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
-class wxFbxDestPropertyGrid;
-class wxFbxSourcePropertyGrid;
-
 #include <wx/string.h>
 #include <wx/stattext.h>
 #include <wx/gdicmn.h>
@@ -25,6 +22,7 @@ class wxFbxSourcePropertyGrid;
 #include <wx/propgrid/advprops.h>
 #include <wx/combobox.h>
 #include <wx/sizer.h>
+#include <wx/treectrl.h>
 #include <wx/button.h>
 #include <wx/dialog.h>
 
@@ -34,9 +32,10 @@ class wxFbxSourcePropertyGrid;
 #define wxID_SOURCEFILE_COMBO 1001
 #define wxID_DEST_PG 1002
 #define wxID_DESTFILE_COMBO 1003
-#define wxID_OPEN_BUTTON 1004
-#define wxID_SAVE_BUTTON 1005
-#define wxID_EXIT_BUTTON 1006
+#define wxID_SCENE_TREE 1004
+#define wxID_OPEN_BUTTON 1005
+#define wxID_SAVE_BUTTON 1006
+#define wxID_EXIT_BUTTON 1007
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbxConverterDialogBase
@@ -47,11 +46,12 @@ class FbxConverterDialogBase : public wxDialog
 
 	protected:
 		wxStaticText* sourceStaticText;
-		wxFbxSourcePropertyGrid* fbxSourcePropertyGrid;
+		wxPropertyGrid* fbxSourcePropertyGrid;
 		wxComboBox* fbxSourceFileComboBox;
 		wxStaticText* destStaticText;
-		wxFbxDestPropertyGrid* fbxDestPropertyGrid;
+		wxPropertyGrid* fbxDestPropertyGrid;
 		wxComboBox* fbxDestFileComboBox;
+		wxTreeCtrl* sceneTreeCtrl;
 		wxButton* openFileButton;
 		wxButton* saveFileButton;
 		wxButton* exitButton;
@@ -59,9 +59,8 @@ class FbxConverterDialogBase : public wxDialog
 		// Virtual event handlers, overide them in your derived class
 		virtual void CloseMainDialog( wxCloseEvent& event ) { event.Skip(); }
 		virtual void InitDialog( wxInitDialogEvent& event ) { event.Skip(); }
-		virtual void OnSourcePGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
+		virtual void OnPGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
 		virtual void OnSourceComboBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnDestPGChanged( wxPropertyGridEvent& event ) { event.Skip(); }
 		virtual void OnDestComboBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnOpenFbxFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveFbxFile( wxCommandEvent& event ) { event.Skip(); }
