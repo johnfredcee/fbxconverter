@@ -11,6 +11,36 @@ extern FbxManager *fbxManager;
 
 class FbxConverterDialog : public FbxConverterDialogBase
 {
+
+	/* Item data associated with each item in the tree */
+	class SceneTreeItemData : public wxTreeItemData
+	{
+	public:
+		SceneTreeItemData(FbxObject* node = NULL) : object(node)
+		{
+		}
+
+		FbxNode* getNode() {
+			if ((object != nullptr) && (object->Is<FbxNode>()))
+				return FbxCast<FbxNode>(object);
+			else
+				return NULL;
+		}
+
+		FbxObject *getData()
+		{
+			return object;
+		}
+
+		bool valid() {
+			return (object != nullptr);
+		}
+		
+	private:
+		FbxObject* object;
+	};
+
+
 	FbxScene *mainScene;
 
 protected:
@@ -65,4 +95,6 @@ private:
 	void LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory);
 	void PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProperty &parent, wxPropertyCategory *category);
 	void PropertyWalk(wxPropertyGrid* propertyGrid, FbxProperty &parent);
+	void ProcessNode(FbxNode* node, wxTreeItemId rootItem);
+	void UpdateSceneTree();
 };

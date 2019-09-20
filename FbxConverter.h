@@ -30,9 +30,9 @@
 
 #define wxID_SOURCE_PG 1000
 #define wxID_SOURCEFILE_COMBO 1001
-#define wxID_DEST_PG 1002
-#define wxID_DESTFILE_COMBO 1003
-#define wxID_SCENE_TREE 1004
+#define wxID_SCENE_TREE 1002
+#define wxID_DEST_PG 1003
+#define wxID_DESTFILE_COMBO 1004
 #define wxID_OPEN_BUTTON 1005
 #define wxID_SAVE_BUTTON 1006
 #define wxID_EXIT_BUTTON 1007
@@ -48,10 +48,10 @@ class FbxConverterDialogBase : public wxDialog
 		wxStaticText* sourceStaticText;
 		wxPropertyGrid* fbxSourcePropertyGrid;
 		wxComboBox* fbxSourceFileComboBox;
+		wxTreeCtrl* sceneTreeCtrl;
 		wxStaticText* destStaticText;
 		wxPropertyGrid* fbxDestPropertyGrid;
 		wxComboBox* fbxDestFileComboBox;
-		wxTreeCtrl* sceneTreeCtrl;
 		wxButton* openFileButton;
 		wxButton* saveFileButton;
 		wxButton* exitButton;
@@ -69,7 +69,7 @@ class FbxConverterDialogBase : public wxDialog
 
 	public:
 
-		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Fbx Converter"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 619,474 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Fbx Converter"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 980,794 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 		~FbxConverterDialogBase();
 
 };

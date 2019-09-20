@@ -2,13 +2,100 @@
 
 #include <iterator>
 #include <fbxsdk.h>
-#include <wx/filedlg.h>
 #include <wx/wx.h>
+#include <wx/filedlg.h>
+#include <wx/progdlg.h>
 #include "DestPropertyGrid.h"
 #include "FbxConverter.h"
 #include "SourcePropertyGrid.h"
 #include "FbxConverterDialog.h"
 #include "FbxConverterApp.h"
+
+namespace {
+
+/**
+ * Produce a simple string describing the nature of the node
+ * @param pNode node to describe
+ * @return description string
+ */
+wxString getNodeDescription(FbxNode* pNode)
+{
+	wxString result;
+	FbxNodeAttribute::EType lAttributeType;
+	if(pNode->GetNodeAttribute() == NULL) {
+		FbxProperty isSplineProperty(pNode->FindProperty("IsSpline"));
+		result = isSplineProperty.IsValid() ? wxT(" (Spline)") : wxT(" (No node attribute type)");
+	} else {
+		lAttributeType = (pNode->GetNodeAttribute()->GetAttributeType());
+		switch(lAttributeType) {
+			case FbxNodeAttribute::eMarker:
+				result = wxT(" (Marker)");
+				break;
+			case FbxNodeAttribute::eSkeleton:
+				result = wxT(" (Bone)");
+				break;
+			case FbxNodeAttribute::eMesh:
+				result = wxT(" (Mesh)");
+				break;
+			case FbxNodeAttribute::eCamera:
+				result = wxT(" (Camera)");
+				break;
+			case FbxNodeAttribute::eCameraStereo:
+				result = wxT(" (Camera Stereo)");
+				break;
+			case FbxNodeAttribute::eLight:
+				result = wxT(" (Light)");
+				break;
+			case FbxNodeAttribute::eBoundary:
+				result = wxT(" (Boundary)");
+				break;
+			case FbxNodeAttribute::eOpticalMarker:
+				result = wxT(" (Optical Marker)");
+				break;
+			case FbxNodeAttribute::eOpticalReference:
+				result = wxT(" (Optical Reference)");
+				break;
+			case FbxNodeAttribute::eCameraSwitcher:
+				result = wxT(" (Camera Switcher)");
+				break;
+			case FbxNodeAttribute::eNull: {
+				FbxProperty isSplineProperty(pNode->FindProperty("IsSpline"));
+				result = (isSplineProperty.IsValid()) ?	 wxT(" (Spline)") : wxT(" (Null)");
+			}
+				break;
+			case FbxNodeAttribute::ePatch:
+				result = wxT(" (Patch)");
+				break;
+			case FbxNodeAttribute::eNurbs:
+				result = wxT(" (Nurbs)");
+				break;
+			case FbxNodeAttribute::eNurbsSurface:
+				result = wxT(" (Nurbs Surface)");
+				break;
+			case FbxNodeAttribute::eNurbsCurve:
+				result = wxT(" (Nurbs Curve)");
+				break;
+			case FbxNodeAttribute::eTrimNurbsSurface:
+				result = wxT(" (Trim Nurbs Surface)");
+				break;
+			case FbxNodeAttribute::eShape:
+				result = wxT(" (Shape)");
+				break;
+			case FbxNodeAttribute::eLODGroup:
+				result = wxT(" (LOD Group)");
+				break;
+			case FbxNodeAttribute::eSubDiv:
+				result = wxT(" (Subdivision Surface)");
+				break;
+			case FbxNodeAttribute::eUnknown:
+				result = wxT(" (Unknown)");
+				break;
+		}
+	}
+	return result;
+}
+
+}
 
 FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style)
 	: mainScene(nullptr),
@@ -98,7 +185,7 @@ void FbxConverterDialog::OnSourceComboBox(wxCommandEvent &event)
 {
 	long sel = event.GetInt();
 	const wxString selstr = wxString::Format("%ld", sel);
-	wxLogDebug("Source Combobox item %ld selected", sel);
+	wxLogDebug(wxT("Source Combobox item %ld selected"), sel);
 	currentReaderFormat = sel;
 	UpdateSourcePG();
 }
@@ -287,10 +374,11 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 
 	// now we have the file to import
 	wxString fileToImport(openFileDialog.GetPath());
-	wxLogDebug("Reading %s", fileToImport.c_str());
-	
+	wxProgressDialog progress(wxT("Scene Import"), 	wxString::Format(wxT("Reading %s"), fileToImport.c_str()).c_str(), 100, this);
+ 	
 	// Create an importer.
 	FbxImporter *fbxImporter = FbxImporter::Create(FbxConverterApp::fbxManager, "");
+    progress.Update(2, wxT("Created Importer"));
 
 	// Initialize the importer by providing a filename.
 	const bool bImportStatus = fbxImporter->Initialize(openFileDialog.GetPath().c_str(), -1, FbxConverterApp::fbxManager->GetIOSettings());
@@ -322,6 +410,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 		FbxScene *fbxScene = FbxScene::Create(FbxConverterApp::fbxManager, openFileDialog.GetFilename().c_str());
 		if (fbxScene)
 		{
+		    progress.Pulse(wxT("Importing Scene"));
 			bool importStatus = fbxImporter->Import(fbxScene);
 			if (importStatus)
 			{
@@ -345,7 +434,11 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					}
 					mainScene = fbxScene;
 					saveFileButton->Enable(true);
+				    progress.Pulse(wxT("Updating options Scene"));
 					UpdateSourcePG();
+				    progress.Pulse(wxT("Traversing Scene"));
+					UpdateSceneTree();
+
 				}
 			}
 			else
@@ -365,7 +458,8 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 		wxLogDebug("Failed to create importer for %s",  openFileDialog.GetPath().c_str());
 		wxLogDebug("Error returned %s", error.Buffer());
 	}
-	event.Skip();
+   progress.Update(100, wxT("Done"));
+   event.Skip();
 }
 
 /* called when the user clicks save on the dialog */
@@ -410,13 +504,11 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 void FbxConverterDialog::OnExitApp(wxCommandEvent& event)
 {
 	FbxConverterApp::mainDialog->Close();
-	FbxConverterApp::mainDialog->Destroy();
 	event.Skip();
 }
 
 void FbxConverterDialog::CloseMainDialog(wxCloseEvent& event)
 {
-	FbxConverterApp::mainDialog->Close();
 	FbxConverterApp::mainDialog->Destroy();
 	event.Skip();
 }
@@ -457,4 +549,45 @@ void FbxConverterDialog::UpdateDestPG()
 	{
 		fbxDestPropertyGrid->Clear();	
 	} 
+}
+
+void FbxConverterDialog::ProcessNode(FbxNode* node, wxTreeItemId rootItem)
+{
+	int lNodeChildCount = node->GetChildCount();
+	FbxString newName(node->GetName());
+	node->SetName(newName.Buffer());
+	wxString description(wxString(node->GetName(), wxConvUTF8) + getNodeDescription(node));
+	wxTreeItemId item = sceneTreeCtrl->AppendItem(rootItem, description, -1, -1, new SceneTreeItemData(node));
+	int nodeChildCount = node->GetChildCount();
+	FbxNode *childNode;
+	while (nodeChildCount > 0) 
+	{
+		nodeChildCount--;
+		childNode = node->GetChild(nodeChildCount);
+		ProcessNode(childNode, item);
+	}
+};
+
+void FbxConverterDialog::UpdateSceneTree()
+{
+	if (mainScene != nullptr)
+	{
+		sceneTreeCtrl->Hide();
+		sceneTreeCtrl->DeleteAllItems();	
+		FbxNode* root = mainScene->GetRootNode();
+		if (root != nullptr)
+		{
+			wxString description(wxString(root->GetName(), wxConvUTF8) + getNodeDescription(root));
+			wxTreeItemId rootId = sceneTreeCtrl->AddRoot(description, -1, -1, new SceneTreeItemData(root));
+		    int nodeChildCount = root->GetChildCount();
+ 		    FbxNode *childNode;
+    		while (nodeChildCount > 0) 
+			{
+        		nodeChildCount--;
+        		childNode = root->GetChild(nodeChildCount);
+        		ProcessNode(childNode, rootId);
+			}
+    	}
+		sceneTreeCtrl->Show();
+	}
 }

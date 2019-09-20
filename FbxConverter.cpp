@@ -35,6 +35,15 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 
 	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
 
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	sceneTreeCtrl = new wxTreeCtrl( this, wxID_SCENE_TREE, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
+	bSizer6->Add( sceneTreeCtrl, 1, wxALL|wxEXPAND, 5 );
+
+
+	bPropertyGridSizer->Add( bSizer6, 1, wxEXPAND, 5 );
+
 	wxBoxSizer* bSizer5;
 	bSizer5 = new wxBoxSizer( wxVERTICAL );
 
@@ -50,15 +59,6 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 
 
 	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );
-
-	wxBoxSizer* bSizer6;
-	bSizer6 = new wxBoxSizer( wxVERTICAL );
-
-	sceneTreeCtrl = new wxTreeCtrl( this, wxID_SCENE_TREE, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
-	bSizer6->Add( sceneTreeCtrl, 1, wxALL|wxEXPAND, 5 );
-
-
-	bPropertyGridSizer->Add( bSizer6, 1, wxEXPAND, 5 );
 
 
 	DialogSizrer->Add( bPropertyGridSizer, 5, wxEXPAND, 5 );
