@@ -32,6 +32,13 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	fbxSourceFileComboBox = new wxComboBox( this, wxID_SOURCEFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	bSizer4->Add( fbxSourceFileComboBox, 0, wxALL|wxEXPAND, 5 );
 
+	fbxSourceUpAxisLabel = new wxStaticText( this, wxID_ANY, wxT("Up Axis"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbxSourceUpAxisLabel->Wrap( -1 );
+	bSizer4->Add( fbxSourceUpAxisLabel, 0, wxALL, 5 );
+
+	fbxSourceUpAxisText = new wxTextCtrl( this, wxID_SOURCEUPAXISTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer4->Add( fbxSourceUpAxisText, 0, wxALL|wxEXPAND, 5 );
+
 
 	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
 
@@ -56,6 +63,13 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 
 	fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	bSizer5->Add( fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	fbDestUpAxisLabel = new wxStaticText( this, wxID_ANY, wxT("Up Axis"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbDestUpAxisLabel->Wrap( -1 );
+	bSizer5->Add( fbDestUpAxisLabel, 0, wxALL, 5 );
+
+	fbxDestUpAxisComboBox = new wxComboBox( this, wxID_DESTUPAXISCOMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer5->Add( fbxDestUpAxisComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
 	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );

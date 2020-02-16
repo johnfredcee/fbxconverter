@@ -21,6 +21,7 @@
 #include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
 #include <wx/combobox.h>
+#include <wx/textctrl.h>
 #include <wx/sizer.h>
 #include <wx/treectrl.h>
 #include <wx/button.h>
@@ -30,12 +31,14 @@
 
 #define wxID_SOURCE_PG 1000
 #define wxID_SOURCEFILE_COMBO 1001
-#define wxID_SCENE_TREE 1002
-#define wxID_DEST_PG 1003
-#define wxID_DESTFILE_COMBO 1004
-#define wxID_OPEN_BUTTON 1005
-#define wxID_SAVE_BUTTON 1006
-#define wxID_EXIT_BUTTON 1007
+#define wxID_SOURCEUPAXISTEXT 1002
+#define wxID_SCENE_TREE 1003
+#define wxID_DEST_PG 1004
+#define wxID_DESTFILE_COMBO 1005
+#define wxID_DESTUPAXISCOMBO 1006
+#define wxID_OPEN_BUTTON 1007
+#define wxID_SAVE_BUTTON 1008
+#define wxID_EXIT_BUTTON 1009
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbxConverterDialogBase
@@ -48,10 +51,14 @@ class FbxConverterDialogBase : public wxDialog
 		wxStaticText* sourceStaticText;
 		wxPropertyGrid* fbxSourcePropertyGrid;
 		wxComboBox* fbxSourceFileComboBox;
+		wxStaticText* fbxSourceUpAxisLabel;
+		wxTextCtrl* fbxSourceUpAxisText;
 		wxTreeCtrl* sceneTreeCtrl;
 		wxStaticText* destStaticText;
 		wxPropertyGrid* fbxDestPropertyGrid;
 		wxComboBox* fbxDestFileComboBox;
+		wxStaticText* fbDestUpAxisLabel;
+		wxComboBox* fbxDestUpAxisComboBox;
 		wxButton* openFileButton;
 		wxButton* saveFileButton;
 		wxButton* exitButton;

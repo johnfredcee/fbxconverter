@@ -16,7 +16,7 @@ include(${wxWidgets_USE_FILE})
 
 set(FBXSDK_ROOT "" CACHE PATH "Root of FBX SDK on disk")
 
-foreach (FBXSDK_VERSION "2019.2")
+foreach (FBXSDK_VERSION "2019_5")
   find_package(FBX)
   if (FBXSDK_FOUND)
     break()

@@ -1,5 +1,6 @@
 
 
+#include <array>
 #include <iterator>
 #include <fbxsdk.h>
 #include <wx/wx.h>
@@ -137,6 +138,15 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 		{"aoa", {}},
 		{"mcd", {}},
 		{"zip", {}}};
+
+	fbxDestUpAxisComboBox->Clear();
+	fbxDestUpAxisComboBox->Append("X Axis");
+	fbxDestUpAxisComboBox->Append("Y Axis");
+	fbxDestUpAxisComboBox->Append("Z Axis");
+	fbxDestUpAxisComboBox->Append("X Axis Negative");
+	fbxDestUpAxisComboBox->Append("Y Axis Negative");
+	fbxDestUpAxisComboBox->Append("Z Axis Negative");
+
 };
 
 void FbxConverterDialog::InitDialog( wxInitDialogEvent& event ) 
@@ -179,6 +189,33 @@ wxString FbxConverterDialog::GetReaderDescription(int index)
 wxString FbxConverterDialog::GetWriterDesctiption(int index)
 {
 	return readerFormatExtensionDescription.at(index);
+}
+
+int FbxConverterDialog::GetUpAxisIndex(FbxAxisSystem& System)
+{
+	int result;
+	int sign;
+	FbxAxisSystem::EUpVector up = System.GetUpVector(sign);
+	result = (int)up - 1;
+	if (sign < 0)
+	{
+		result += 3;
+	}
+	return result;
+}
+
+wxString FbxConverterDialog::GetUpAxisDescription(FbxAxisSystem& System)
+{
+	std::array<wxString, 3> axes{ "X Axis", "Y Axis", "Z Axis" };
+	wxString result;
+	int sign;
+	FbxAxisSystem::EUpVector up = System.GetUpVector(sign);
+	result = axes[(int)up - 1];
+	if (sign < 0)
+	{
+		result = result + " Negative";
+	}
+	return result;
 }
 
 void FbxConverterDialog::OnSourceComboBox(wxCommandEvent &event)
@@ -388,7 +425,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 		fbxImporter->GetFileVersion(FileMajor, FileMinor, FileRevision);
 		
 		// Get the io settings for the importer
-		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
+		FbxIOSettings *fbxIOSettings = fbxImporter->GetIOSettings();
 		if (fbxImporter->IsFBX())
 		{
 			wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor, FileMinor, FileRevision);
@@ -438,7 +475,11 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					UpdateSourcePG();
 				    progress.Pulse(wxT("Traversing Scene"));
 					UpdateSceneTree();
-
+					FbxAxisSystem axisSystem(mainScene->GetGlobalSettings().GetAxisSystem());
+					fbxSourceUpAxisText->Clear();
+					fbxSourceUpAxisText->AppendText(GetUpAxisDescription(axisSystem));
+					fbxDestUpAxisComboBox->SetSelection(GetUpAxisIndex(axisSystem));
+					//FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
 				}
 			}
 			else

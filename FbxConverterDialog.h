@@ -88,7 +88,8 @@ public:
 	wxString GetWriterExtension(int index);
 	wxString GetReaderDescription(int index);
 	wxString GetWriterDesctiption(int index);
-
+	int GetUpAxisIndex(FbxAxisSystem& System);
+	wxString GetUpAxisDescription(FbxAxisSystem& System);
 private:
 	void UpdateSourcePG();
 	void UpdateDestPG();
