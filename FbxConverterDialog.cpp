@@ -139,14 +139,14 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 		{"mcd", {}},
 		{"zip", {}}};
 
-	fbxDestUpAxisComboBox->Clear();
-	fbxDestUpAxisComboBox->Append("X Axis");
-	fbxDestUpAxisComboBox->Append("Y Axis");
-	fbxDestUpAxisComboBox->Append("Z Axis");
-	fbxDestUpAxisComboBox->Append("X Axis Negative");
-	fbxDestUpAxisComboBox->Append("Y Axis Negative");
-	fbxDestUpAxisComboBox->Append("Z Axis Negative");
-
+	fbxDestAxisSystemComboBox->Clear();
+	fbxDestAxisSystemComboBox->Append("Maya Z Up");
+	fbxDestAxisSystemComboBox->Append("Maya Y Up");
+	fbxDestAxisSystemComboBox->Append("3DS Max");
+	fbxDestAxisSystemComboBox->Append("MotionBuilder");
+	fbxDestAxisSystemComboBox->Append("OpenGL");
+	fbxDestAxisSystemComboBox->Append("Directx");
+	fbxDestAxisSystemComboBox->Append("Lightwave");
 };
 
 void FbxConverterDialog::InitDialog( wxInitDialogEvent& event ) 
@@ -214,6 +214,37 @@ wxString FbxConverterDialog::GetUpAxisDescription(FbxAxisSystem& System)
 	if (sign < 0)
 	{
 		result = result + " Negative";
+	}
+	return result;
+}
+
+wxString FbxConverterDialog::GetAxisSystemDescription(enum FbxAxisSystem::EPreDefinedAxisSystem axisSystem)
+{
+	wxString result;
+
+	switch(axisSystem)
+	{
+		case FbxAxisSystem::EPreDefinedAxisSystem::eMayaZUp:			/*!< UpVector = ZAxis, FrontVector = -ParityOdd, CoordSystem = RightHanded */
+			result = "Maya Z Up";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eMayaYUp:			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			result = "Maya Y Up";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eMax:				/*!< UpVector = ZAxis, FrontVector = -ParityOdd, CoordSystem = RightHanded */
+			result = "3DS Max";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eMotionBuilder:		/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			result = "MotionBuilder";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eOpenGL:			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			result = "OpenGL";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eDirectX:			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = LeftHanded */
+			result = "Directx";
+			break;
+        case FbxAxisSystem::EPreDefinedAxisSystem::eLightwave:
+			result = "Lightwave";
+			break;
 	}
 	return result;
 }
@@ -478,7 +509,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					FbxAxisSystem axisSystem(mainScene->GetGlobalSettings().GetAxisSystem());
 					fbxSourceUpAxisText->Clear();
 					fbxSourceUpAxisText->AppendText(GetUpAxisDescription(axisSystem));
-					fbxDestUpAxisComboBox->SetSelection(GetUpAxisIndex(axisSystem));
+					fbxDestAxisSystemComboBox->SetSelection(0);
 					//FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
 				}
 			}

@@ -39,6 +39,20 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	fbxSourceUpAxisText = new wxTextCtrl( this, wxID_SOURCEUPAXISTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
 	bSizer4->Add( fbxSourceUpAxisText, 0, wxALL|wxEXPAND, 5 );
 
+	fbxSourceParityLabel = new wxStaticText( this, wxID_ANY, wxT("Parity"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbxSourceParityLabel->Wrap( -1 );
+	bSizer4->Add( fbxSourceParityLabel, 0, wxALL, 5 );
+
+	fbxSourceParityText = new wxTextCtrl( this, wxID_SOURCEPARITYTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer4->Add( fbxSourceParityText, 0, wxALL|wxEXPAND, 5 );
+
+	fbxSourceHandednessLabel = new wxStaticText( this, wxID_ANY, wxT("Handedness"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbxSourceHandednessLabel->Wrap( -1 );
+	bSizer4->Add( fbxSourceHandednessLabel, 0, wxALL, 5 );
+
+	fbxSourceHandedness = new wxTextCtrl( this, wxID_SOURCEHANDEDNESSTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer4->Add( fbxSourceHandedness, 0, wxALL|wxEXPAND, 5 );
+
 
 	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
 
@@ -64,12 +78,12 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	bSizer5->Add( fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
 
-	fbDestUpAxisLabel = new wxStaticText( this, wxID_ANY, wxT("Up Axis"), wxDefaultPosition, wxDefaultSize, 0 );
-	fbDestUpAxisLabel->Wrap( -1 );
-	bSizer5->Add( fbDestUpAxisLabel, 0, wxALL, 5 );
+	fbDestAxisSystemLabel = new wxStaticText( this, wxID_ANY, wxT("AxisSystem"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbDestAxisSystemLabel->Wrap( -1 );
+	bSizer5->Add( fbDestAxisSystemLabel, 0, wxALL, 5 );
 
-	fbxDestUpAxisComboBox = new wxComboBox( this, wxID_DESTUPAXISCOMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	bSizer5->Add( fbxDestUpAxisComboBox, 0, wxALL|wxEXPAND, 5 );
+	fbxDestAxisSystemComboBox = new wxComboBox( this, wxID_DESTAXISSYSTEMCOMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer5->Add( fbxDestAxisSystemComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
 	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );

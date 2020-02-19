@@ -97,5 +97,6 @@ private:
 	void PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProperty &parent, wxPropertyCategory *category);
 	void PropertyWalk(wxPropertyGrid* propertyGrid, FbxProperty &parent);
 	void ProcessNode(FbxNode* node, wxTreeItemId rootItem);
+	wxString GetAxisSystemDescription(enum FbxAxisSystem::EPreDefinedAxisSystem axisSystem);
 	void UpdateSceneTree();
 };
