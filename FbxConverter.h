@@ -34,13 +34,15 @@
 #define wxID_SOURCEUPAXISTEXT 1002
 #define wxID_SOURCEPARITYTEXT 1003
 #define wxID_SOURCEHANDEDNESSTEXT 1004
-#define wxID_SCENE_TREE 1005
-#define wxID_DEST_PG 1006
-#define wxID_DESTFILE_COMBO 1007
-#define wxID_DESTAXISSYSTEMCOMBO 1008
-#define wxID_OPEN_BUTTON 1009
-#define wxID_SAVE_BUTTON 1010
-#define wxID_EXIT_BUTTON 1011
+#define wxID_SOURCEUNITSTEXT 1005
+#define wxID_SCENE_TREE 1006
+#define wxID_DEST_PG 1007
+#define wxID_DESTFILE_COMBO 1008
+#define wxID_DESTAXISSYSTEMCOMBO 1009
+#define wxID_DESTUNITSCOMBO 1010
+#define wxID_OPEN_BUTTON 1011
+#define wxID_SAVE_BUTTON 1012
+#define wxID_EXIT_BUTTON 1013
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FbxConverterDialogBase
@@ -59,12 +61,16 @@ class FbxConverterDialogBase : public wxDialog
 		wxTextCtrl* fbxSourceParityText;
 		wxStaticText* fbxSourceHandednessLabel;
 		wxTextCtrl* fbxSourceHandedness;
+		wxStaticText* fbxSourceUnitsLabel;
+		wxTextCtrl* fbxSourceUnitsText;
 		wxTreeCtrl* sceneTreeCtrl;
 		wxStaticText* destStaticText;
 		wxPropertyGrid* fbxDestPropertyGrid;
 		wxComboBox* fbxDestFileComboBox;
 		wxStaticText* fbDestAxisSystemLabel;
 		wxComboBox* fbxDestAxisSystemComboBox;
+		wxStaticText* fbxDestUnitsLabel;
+		wxComboBox* fbxDestUnitsComboBox;
 		wxButton* openFileButton;
 		wxButton* saveFileButton;
 		wxButton* exitButton;

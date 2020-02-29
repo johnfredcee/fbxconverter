@@ -53,6 +53,13 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	fbxSourceHandedness = new wxTextCtrl( this, wxID_SOURCEHANDEDNESSTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
 	bSizer4->Add( fbxSourceHandedness, 0, wxALL|wxEXPAND, 5 );
 
+	fbxSourceUnitsLabel = new wxStaticText( this, wxID_ANY, wxT("Units"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbxSourceUnitsLabel->Wrap( -1 );
+	bSizer4->Add( fbxSourceUnitsLabel, 0, wxALL, 5 );
+
+	fbxSourceUnitsText = new wxTextCtrl( this, wxID_SOURCEUNITSTEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer4->Add( fbxSourceUnitsText, 0, wxALL|wxEXPAND, 5 );
+
 
 	bPropertyGridSizer->Add( bSizer4, 1, wxEXPAND, 5 );
 
@@ -75,15 +82,22 @@ FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id,
 	fbxDestPropertyGrid = new wxPropertyGrid(this, wxID_DEST_PG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
 	bSizer5->Add( fbxDestPropertyGrid, 1, wxALL|wxEXPAND, 5 );
 
-	fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	fbxDestFileComboBox = new wxComboBox( this, wxID_DESTFILE_COMBO, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	bSizer5->Add( fbxDestFileComboBox, 0, wxALL|wxEXPAND, 5 );
 
 	fbDestAxisSystemLabel = new wxStaticText( this, wxID_ANY, wxT("AxisSystem"), wxDefaultPosition, wxDefaultSize, 0 );
 	fbDestAxisSystemLabel->Wrap( -1 );
 	bSizer5->Add( fbDestAxisSystemLabel, 0, wxALL, 5 );
 
-	fbxDestAxisSystemComboBox = new wxComboBox( this, wxID_DESTAXISSYSTEMCOMBO, wxT("Combo!"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	fbxDestAxisSystemComboBox = new wxComboBox( this, wxID_DESTAXISSYSTEMCOMBO, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	bSizer5->Add( fbxDestAxisSystemComboBox, 0, wxALL|wxEXPAND, 5 );
+
+	fbxDestUnitsLabel = new wxStaticText( this, wxID_ANY, wxT("Units"), wxDefaultPosition, wxDefaultSize, 0 );
+	fbxDestUnitsLabel->Wrap( -1 );
+	bSizer5->Add( fbxDestUnitsLabel, 0, wxALL, 5 );
+
+	fbxDestUnitsComboBox = new wxComboBox( this, wxID_DESTUNITSCOMBO, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	bSizer5->Add( fbxDestUnitsComboBox, 0, wxALL|wxEXPAND, 5 );
 
 
 	bPropertyGridSizer->Add( bSizer5, 1, wxEXPAND, 5 );

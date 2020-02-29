@@ -139,6 +139,7 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 		{"mcd", {}},
 		{"zip", {}}};
 
+	// fill axis system combo box
 	fbxDestAxisSystemComboBox->Clear();
 	fbxDestAxisSystemComboBox->Append("Maya Z Up");
 	fbxDestAxisSystemComboBox->Append("Maya Y Up");
@@ -147,13 +148,24 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 	fbxDestAxisSystemComboBox->Append("OpenGL");
 	fbxDestAxisSystemComboBox->Append("Directx");
 	fbxDestAxisSystemComboBox->Append("Lightwave");
+
+
+	fbxDestUnitsComboBox->Append("Milimetres");
+	fbxDestUnitsComboBox->Append("Decimetres");
+	fbxDestUnitsComboBox->Append("Centimetres");
+	fbxDestUnitsComboBox->Append("Metres");
+	fbxDestUnitsComboBox->Append("Kilometres");
+	fbxDestUnitsComboBox->Append("Inches");
+	fbxDestUnitsComboBox->Append("Feet");
+	fbxDestUnitsComboBox->Append("Miles");
+	fbxDestUnitsComboBox->Append("Yards");
 };
 
 void FbxConverterDialog::InitDialog( wxInitDialogEvent& event ) 
 {
 	fbxSourceFileComboBox->SetSelection(currentReaderFormat);
 	fbxDestFileComboBox->SetSelection(currentWriterFormat);
-	UpdateSourcePG();
+	UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
 	UpdateDestPG();
 }
 
@@ -249,13 +261,99 @@ wxString FbxConverterDialog::GetAxisSystemDescription(enum FbxAxisSystem::EPreDe
 	return result;
 }
 
+wxString FbxConverterDialog::GetUnitsDescription(const FbxSystemUnit& units)
+{
+	if (units == FbxSystemUnit::mm)
+	{
+		return "Milimetres";
+	}
+
+	if (units == FbxSystemUnit::dm)
+	{
+		return "Dceimetres";
+	}
+
+	if (units == FbxSystemUnit::cm)
+	{
+		return "Centimetres";
+	}
+
+	if (units == FbxSystemUnit::m)
+	{
+		return "Metres";
+	}
+
+	if (units == FbxSystemUnit::km)
+	{
+		return "Kilometres";
+	}
+
+	if (units == FbxSystemUnit::Inch)
+	{
+		return "Inches";
+	}
+
+	if (units == FbxSystemUnit::Foot)
+	{
+		return "Feet";
+	}
+
+	if (units == FbxSystemUnit::Mile)
+	{
+		return "Miles";
+	}
+
+	if (units == FbxSystemUnit::Yard)
+	{
+		return "Yards";
+	}
+	return "Unknown";
+}
+
+FbxSystemUnit FbxConverterDialog::GetSystemUnit(int index)
+{
+
+	FbxSystemUnit result;
+	switch(index)
+	{
+		case 0:
+			result = FbxSystemUnit::mm;
+			break;
+		case 1:
+			result = FbxSystemUnit::dm;
+			break;
+		case 2:
+			result = FbxSystemUnit::cm;
+			break;
+		case 3:
+			result = FbxSystemUnit::m;
+			break;
+		case 4:
+			result = FbxSystemUnit::km;
+			break;
+		case 5:
+			result = FbxSystemUnit::Inch;
+			break;
+		case 6:
+			result = FbxSystemUnit::Foot;
+			break;
+		case 7:
+			result = FbxSystemUnit::Mile;
+			break;
+		case 8:
+			result = FbxSystemUnit::Yard;
+			break;
+	}
+	return result;
+}
+
 void FbxConverterDialog::OnSourceComboBox(wxCommandEvent &event)
 {
 	long sel = event.GetInt();
 	const wxString selstr = wxString::Format("%ld", sel);
 	wxLogDebug(wxT("Source Combobox item %ld selected"), sel);
 	currentReaderFormat = sel;
-	UpdateSourcePG();
+	UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
 }
 
 void FbxConverterDialog::OnDestComboBox(wxCommandEvent &event)
@@ -319,7 +417,6 @@ void FbxConverterDialog::OnPGChanged(wxPropertyGridEvent &event)
 };
 
 
-
 void FbxConverterDialog::LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory)
 {
 	FbxDataType propertyType(property.GetPropertyDataType());
@@ -345,9 +442,15 @@ void FbxConverterDialog::LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty 
 	case EFbxType::eFbxInt:
 	{
 		FbxPropertyT<FbxInt> fbxInt(property);
-		wxIntProperty *intProp = new wxIntProperty(property.GetLabel().Buffer(), property.GetNameAsCStr(), fbxInt);
+		wxIntProperty *intProp = new wxIntProperty(property.GetLabel().Buffer(), property.GetNameAsCStr(), fbxInt.Get());
 		propertyNode = propertyGrid->AppendIn(parentCategory, intProp);
 		break;
+	}
+	case EFbxType::eFbxUInt:
+	{
+		FbxPropertyT<FbxUInt> fbxUInt(property);
+		wxUIntProperty *UIntProp = new wxUIntProperty(property.GetLabel().Buffer(), property.GetNameAsCStr(), fbxUInt.Get());
+		propertyNode = propertyGrid->AppendIn(parentCategory, UIntProp);
 	}
 	case EFbxType::eFbxString:
 	{
@@ -392,7 +495,7 @@ void FbxConverterDialog::PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProper
 			sibling = sibling.GetSibling();
 			if (!sibling.IsValid())
 				break;
-			wxLogDebug("Sibling %s : (%s)", sibling.GetNameAsCStr(), sibling.GetLabel().Buffer());
+			//wxLogDebug("Sibling %s : (%s)", sibling.GetNameAsCStr(), sibling.GetLabel().Buffer());
 			if (sibling.GetChild().IsValid())
 			{
 				wxPropertyCategory *siblingCategory = new wxPropertyCategory(wxString(sibling.GetNameAsCStr()));
@@ -461,7 +564,6 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 		{
 			wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor, FileMinor, FileRevision);
 			int animStackCount = fbxImporter->GetAnimStackCount();
-
 			wxLogDebug("Number of animation stacks %d", animStackCount);
 			wxLogDebug("Current animation stack:\"%s\"", fbxImporter->GetActiveAnimStackName().Buffer());
 			for (int i = 0; i < animStackCount; ++i)
@@ -503,14 +605,38 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					mainScene = fbxScene;
 					saveFileButton->Enable(true);
 				    progress.Pulse(wxT("Updating options Scene"));
-					UpdateSourcePG();
+					UpdateSourcePG(fbxIOSettings);
 				    progress.Pulse(wxT("Traversing Scene"));
 					UpdateSceneTree();
 					FbxAxisSystem axisSystem(mainScene->GetGlobalSettings().GetAxisSystem());
 					fbxSourceUpAxisText->Clear();
 					fbxSourceUpAxisText->AppendText(GetUpAxisDescription(axisSystem));
+					fbxSourceParityText->Clear();
+					int sign;
+					FbxAxisSystem::EFrontVector parity = axisSystem.GetFrontVector(sign);
+					wxString ParityString;
+					ParityString.Append(sign == 1 ? "Positive" : "Negative");
+					ParityString.Append(parity == FbxAxisSystem::eParityEven ? " Even" : " Odd");
+					fbxSourceParityText->AppendText(ParityString);
+					FbxAxisSystem::ECoordSystem coordSystem;
+					fbxSourceHandedness->Clear();
+					wxString HandednessString;
+					HandednessString.Append(coordSystem == FbxAxisSystem::eLeftHanded ? "Left Handed" : "Right Handed");
+					fbxSourceHandedness->AppendText(HandednessString);
 					fbxDestAxisSystemComboBox->SetSelection(0);
-					//FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
+					FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
+					fbxSourceUnitsText->AppendText(GetUnitsDescription(units));
+					fbxDestAxisSystemComboBox->SetSelection(2);
+				// 	int modelCount = mainScene->GetModelCount();
+				// 	int characterCount = mainScene->GetCharacterCount();
+				// 	int characterPoseCount = mainScene->GetCharacterPoseCount();
+				// 	int poseCount = mainScene->GetPoseCount();
+				// 	int materialCount = mainScene->GetMaterialCount();
+				// 	int textureCount  = mainScene->GetTextureCount();
+				// 	int nodeCount = mainScene->GetNodeCount();
+				// 	int geometryCount = mainScene->GetGeometryCount();
+				// 	int videoCount = mainScene->GetVideoCount();
+				// 	int genericNodeCount = mainScene->GetGenericNodeCount();
 				}
 			}
 			else
@@ -522,7 +648,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 		{
 			wxLogDebug("Unable to create fbx scene.");
 		}
-		fbxImporter->Destroy();
+		mainScene->Destroy();
 	}
 	else // bImportStatus
 	{
@@ -532,6 +658,39 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 	}
    progress.Update(100, wxT("Done"));
    event.Skip();
+}
+
+void FbxConverterDialog::ConvertToDestAxisSystemAndUnits(int system, int units)
+{
+	wxString result;
+
+	switch(system)
+	{
+		case 0:
+			FbxAxisSystem::MayaZUp.DeepConvertScene(mainScene);			/*!< UpVector = ZAxis, FrontVector = -ParityOdd, CoordSystem = RightHanded */
+			break;
+        case 1:
+			FbxAxisSystem::MayaYUp.DeepConvertScene(mainScene);			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			break;
+        case 2:
+			FbxAxisSystem::Max.DeepConvertScene(mainScene);				/*!< UpVector = ZAxis, FrontVector = -ParityOdd, CoordSystem = RightHanded */
+			break;
+        case 3:
+			FbxAxisSystem::Motionbuilder.DeepConvertScene(mainScene);		/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			break;
+        case 4:
+			 FbxAxisSystem::OpenGL.DeepConvertScene(mainScene);			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = RightHanded */
+			break;
+        case 5:
+			FbxAxisSystem::DirectX.DeepConvertScene(mainScene);			/*!< UpVector = YAxis, FrontVector =  ParityOdd, CoordSystem = LeftHanded */
+			break;
+        case 6:
+			FbxAxisSystem::Lightwave.DeepConvertScene(mainScene);
+			break;
+	}
+	FbxSystemUnit fbxunits(GetSystemUnit(units));
+	fbxunits.ConvertScene(mainScene);
+	return;
 }
 
 /* called when the user clicks save on the dialog */
@@ -552,6 +711,9 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 	wxString fileToExport(saveFileDialog.GetPath());
 	wxLogDebug("Writing %s", fileToExport.c_str());
 
+	int system = fbxDestAxisSystemComboBox->GetSelection();
+	int units = fbxDestUnitsComboBox->GetSelection();
+	ConvertToDestAxisSystemAndUnits(system, units);
 	FbxExporter *fbxExporter = FbxExporter::Create(FbxConverterApp::fbxManager, "");
 	int saveFormatIndex = saveFileDialog.GetFilterIndex();
 	bool bExporterInitialised = fbxExporter->Initialize(fileToExport.c_str(), saveFormatIndex, FbxConverterApp::fbxManager->GetIOSettings());
@@ -585,22 +747,18 @@ void FbxConverterDialog::CloseMainDialog(wxCloseEvent& event)
 	event.Skip();
 }
 
-void FbxConverterDialog::UpdateSourcePG()
+void FbxConverterDialog::UpdateSourcePG(FbxIOSettings *fbxIOSettings)
 {
 	wxString formatExtension = readerFormatExtension[currentReaderFormat];
 	std::vector<wxString>& readerFormatOptions = readerOptionsMap[formatExtension];
+	fbxSourcePropertyGrid->Clear();	
 	if (!std::empty(readerFormatOptions))
 	{
 		// TODO : Have the property dialog handle vectors of properties, not single item
 		wxString propertyPath = readerFormatOptions[0];
-		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		// TODO : Property walk over destination grid, also
 		FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(propertyPath.c_str()));
 		PropertyWalk(fbxSourcePropertyGrid, IoSettingsRoot);
-	} 
-	else
-	{
-		fbxSourcePropertyGrid->Clear();	
 	} 
 }
 

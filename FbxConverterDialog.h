@@ -91,12 +91,15 @@ public:
 	int GetUpAxisIndex(FbxAxisSystem& System);
 	wxString GetUpAxisDescription(FbxAxisSystem& System);
 private:
-	void UpdateSourcePG();
+	void UpdateSourcePG(FbxIOSettings *fbxIOSettings);
 	void UpdateDestPG();
 	void LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory);
 	void PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProperty &parent, wxPropertyCategory *category);
 	void PropertyWalk(wxPropertyGrid* propertyGrid, FbxProperty &parent);
 	void ProcessNode(FbxNode* node, wxTreeItemId rootItem);
 	wxString GetAxisSystemDescription(enum FbxAxisSystem::EPreDefinedAxisSystem axisSystem);
+	wxString GetUnitsDescription(const FbxSystemUnit& units);
+	FbxSystemUnit GetSystemUnit(int index);
+	void ConvertToDestAxisSystemAndUnits(int system, int units);
 	void UpdateSceneTree();
 };
