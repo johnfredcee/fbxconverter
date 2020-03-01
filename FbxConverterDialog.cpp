@@ -167,6 +167,9 @@ void FbxConverterDialog::InitDialog( wxInitDialogEvent& event )
 	fbxDestFileComboBox->SetSelection(currentWriterFormat);
 	UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
 	UpdateDestPG();
+	fbxDestAxisSystemComboBox->SetSelection(1);
+	fbxDestUnitsComboBox->SetSelection(2);
+
 }
 
 void FbxConverterDialog::AddReaderFormat(wxString extension, wxString description)
@@ -601,11 +604,12 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					if (mainScene != nullptr)
 					{
 						mainScene->Destroy();
+						mainScene = nullptr;
 					}
 					mainScene = fbxScene;
 					saveFileButton->Enable(true);
 				    progress.Pulse(wxT("Updating options Scene"));
-					UpdateSourcePG(fbxIOSettings);
+					UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
 				    progress.Pulse(wxT("Traversing Scene"));
 					UpdateSceneTree();
 					FbxAxisSystem axisSystem(mainScene->GetGlobalSettings().GetAxisSystem());
@@ -618,15 +622,13 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					ParityString.Append(sign == 1 ? "Positive" : "Negative");
 					ParityString.Append(parity == FbxAxisSystem::eParityEven ? " Even" : " Odd");
 					fbxSourceParityText->AppendText(ParityString);
-					FbxAxisSystem::ECoordSystem coordSystem;
+					FbxAxisSystem::ECoordSystem coordSystem = axisSystem.GetCoorSystem();
 					fbxSourceHandedness->Clear();
 					wxString HandednessString;
 					HandednessString.Append(coordSystem == FbxAxisSystem::eLeftHanded ? "Left Handed" : "Right Handed");
 					fbxSourceHandedness->AppendText(HandednessString);
-					fbxDestAxisSystemComboBox->SetSelection(0);
 					FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
 					fbxSourceUnitsText->AppendText(GetUnitsDescription(units));
-					fbxDestAxisSystemComboBox->SetSelection(2);
 				// 	int modelCount = mainScene->GetModelCount();
 				// 	int characterCount = mainScene->GetCharacterCount();
 				// 	int characterPoseCount = mainScene->GetCharacterPoseCount();
@@ -649,6 +651,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 			wxLogDebug("Unable to create fbx scene.");
 		}
 		mainScene->Destroy();
+		mainScene = nullptr;
 	}
 	else // bImportStatus
 	{
@@ -751,7 +754,6 @@ void FbxConverterDialog::UpdateSourcePG(FbxIOSettings *fbxIOSettings)
 {
 	wxString formatExtension = readerFormatExtension[currentReaderFormat];
 	std::vector<wxString>& readerFormatOptions = readerOptionsMap[formatExtension];
-	fbxSourcePropertyGrid->Clear();	
 	if (!std::empty(readerFormatOptions))
 	{
 		// TODO : Have the property dialog handle vectors of properties, not single item
@@ -759,6 +761,9 @@ void FbxConverterDialog::UpdateSourcePG(FbxIOSettings *fbxIOSettings)
 		// TODO : Property walk over destination grid, also
 		FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(propertyPath.c_str()));
 		PropertyWalk(fbxSourcePropertyGrid, IoSettingsRoot);
+	} else 
+	{	
+		fbxSourcePropertyGrid->Clear();	
 	} 
 }
 

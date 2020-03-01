@@ -79,6 +79,7 @@ public:
 		if (mainScene != nullptr)
 		{
 			mainScene->Destroy();
+			mainScene = nullptr;
 		}
 	};
 
