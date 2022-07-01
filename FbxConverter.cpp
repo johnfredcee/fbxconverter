@@ -9,9 +9,9 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+FbxConverterDialogBase::FbxConverterDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxDialog( parent, id, title, pos, size, style, name )
 {
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	this->SetSizeHints( wxSize( 640,480 ), wxDefaultSize );
 
 	wxBoxSizer* DialogSizrer;
 	DialogSizrer = new wxBoxSizer( wxVERTICAL );

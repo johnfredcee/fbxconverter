@@ -16,7 +16,7 @@ include(${wxWidgets_USE_FILE})
 
 set(FBXSDK_ROOT "" CACHE PATH "Root of FBX SDK on disk")
 
-foreach (FBXSDK_VERSION "2019_5")
+foreach (FBXSDK_VERSION "2020_2")
   find_package(FBX)
   if (FBXSDK_FOUND)
     break()
@@ -29,7 +29,7 @@ if (NOT FBXSDK_FOUND)
 endif()
 
 set( default_cmake_args
-	 -G "Visual Studio 15 2017 Win64"
+	 -G "Ninja"
 	 -B${BUILD_FOLDER_SUFFIX} "-H." )
 
 
@@ -70,15 +70,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_CRT_SECURE_NO_WARNING
 
 # this will suffice for now; don't really care about 32-bit
 set(LIBXML2_INCLUDE_DIRS ${FBXSDK_INCLUDE_DIR})
-set(LIBXML2_LIBRARIES ${FBXSDK_ROOT}/lib/vs2017/x64/release/libxml2-md.lib)
-set(LIBXML2_LIBRARIES_DEBUG ${FBXSDK_ROOT}/lib/vs2017/x64/debug/libxml2-md.lib)
+set(LIBXML2_LIBRARIES ${FBXSDK_ROOT}/lib/vs2019/x64/release/libxml2-md.lib)
+set(LIBXML2_LIBRARIES_DEBUG ${FBXSDK_ROOT}/lib/vs2019/x64/debug/libxml2-md.lib)
 if (NOT LIBXML2_INCLUDE_DIRS OR NOT LIBXML2_LIBRARIES)
 	message(FATAL_ERROR "Cannot find libxml2.lib in the expected location.")
 endif()
 
 set(ZLIB_INCLUDE_DIRS ${FBXSDK_INCLUDE_DIR})
-set(ZLIB_LIBRARIES ${FBXSDK_ROOT}/lib/vs2017/x64/release/zlib-md.lib)
-set(ZLIB_LIBRARIES_DEBUG ${FBXSDK_ROOT}/lib/vs2017/x64/debug/zlib-md.lib)
+set(ZLIB_LIBRARIES ${FBXSDK_ROOT}/lib/vs2019/x64/release/zlib-md.lib)
+set(ZLIB_LIBRARIES_DEBUG ${FBXSDK_ROOT}/lib/vs2019/x64/debug/zlib-md.lib)
 if (NOT ZLIB_LIBRARIES)
 	message(FATAL_ERROR "Cannot find zlib.lib in the expected location.")
 endif()

@@ -41,7 +41,9 @@ class FbxConverterDialog : public FbxConverterDialogBase
 	};
 
 
-	FbxScene *mainScene;
+	FbxScene *mainScene = nullptr;
+	FbxIOSettings* destIOSettings = nullptr;
+	FbxIOSettings* sourceIOSettings = nullptr;
 
 protected:
 
@@ -93,7 +95,7 @@ public:
 	wxString GetUpAxisDescription(FbxAxisSystem& System);
 private:
 	void UpdateSourcePG(FbxIOSettings *fbxIOSettings);
-	void UpdateDestPG();
+	void UpdateDestPG(FbxIOSettings *fbxIOSettings);
 	void LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory);
 	void PropertyWalkAux(wxPropertyGrid* propertyGrid, FbxProperty &parent, wxPropertyCategory *category);
 	void PropertyWalk(wxPropertyGrid* propertyGrid, FbxProperty &parent);

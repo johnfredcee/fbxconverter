@@ -88,7 +88,7 @@ class FbxConverterDialogBase : public wxDialog
 
 	public:
 
-		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Fbx Converter"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 980,794 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		FbxConverterDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Fbx Converter"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1280,720 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER, const wxString& name = wxT("FbxConverterWin") );
 		~FbxConverterDialogBase();
 
 };

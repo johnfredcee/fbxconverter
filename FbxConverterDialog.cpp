@@ -108,7 +108,7 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 	currentWriterFormat = 0;
 
 	readerOptionsMap = {
-		{"fbx", {IMP_FBX}},
+		{"fbx", {IOSN_IMPORT}},
 		{"dxf", {IMP_DXF}},
 		{"obj", {IMP_OBJ}},
 		{"3ds", {IMP_3DS}},
@@ -125,7 +125,7 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 		{"zip", {}}};
 
 	writerOptionsMap = {
-		{"fbx", {EXP_FBX}},
+		{"fbx", {IOSN_EXPORT}},
 		{"dxf", {EXP_DXF}},
 		{"obj", {EXP_OBJ}},
 		{"dae", {EXP_COLLADA}},
@@ -163,10 +163,12 @@ FbxConverterDialog::FbxConverterDialog(wxWindow *parent, wxWindowID id, const wx
 
 void FbxConverterDialog::InitDialog( wxInitDialogEvent& event ) 
 {
+	destIOSettings = FbxIOSettings::Create(FbxConverterApp::fbxManager, "DestIOSettings");
+	sourceIOSettings = FbxIOSettings::Create(FbxConverterApp::fbxManager, "SourceIOSettings");
 	fbxSourceFileComboBox->SetSelection(currentReaderFormat);
 	fbxDestFileComboBox->SetSelection(currentWriterFormat);
-	UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
-	UpdateDestPG();
+	UpdateSourcePG(sourceIOSettings);
+	UpdateDestPG(destIOSettings);
 	fbxDestAxisSystemComboBox->SetSelection(1);
 	fbxDestUnitsComboBox->SetSelection(2);
 
@@ -356,7 +358,7 @@ void FbxConverterDialog::OnSourceComboBox(wxCommandEvent &event)
 	const wxString selstr = wxString::Format("%ld", sel);
 	wxLogDebug(wxT("Source Combobox item %ld selected"), sel);
 	currentReaderFormat = sel;
-	UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
+	UpdateSourcePG(sourceIOSettings);
 }
 
 void FbxConverterDialog::OnDestComboBox(wxCommandEvent &event)
@@ -365,7 +367,7 @@ void FbxConverterDialog::OnDestComboBox(wxCommandEvent &event)
 	const wxString selstr = wxString::Format("%ld", sel);
 	wxLogDebug("Dest Combobox item %ld selected", sel);
 	currentWriterFormat = sel;
-	UpdateDestPG();
+	UpdateDestPG(destIOSettings);
 }
 
 /*  options in property grid have been changed - nned to transfer from wx to fbx */
@@ -377,8 +379,8 @@ void FbxConverterDialog::OnPGChanged(wxPropertyGridEvent &event)
 	if (clientData != nullptr)
 	{
 		wxLogDebug("Property HName is %s\n ", clientData->GetData().c_str());
-		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
-		FbxProperty property(fbxIOSettings->GetProperty(clientData->GetData().c_str()));
+		FbxIOSettings *fbxIOSettings = sourceIOSettings;
+		FbxProperty property(sourceIOSettings->GetProperty(clientData->GetData().c_str()));
 		if (property.IsValid())
 		{
 			FbxDataType propertyType(property.GetPropertyDataType());
@@ -423,7 +425,12 @@ void FbxConverterDialog::OnPGChanged(wxPropertyGridEvent &event)
 void FbxConverterDialog::LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty &property, wxPropertyCategory *parentCategory)
 {
 	FbxDataType propertyType(property.GetPropertyDataType());
-	wxLogDebug("%s is a %s", property.GetNameAsCStr(), propertyType.GetName());
+	FbxPropertyFlags::EFlags propertyFlags(property.GetFlags());
+	wxLogDebug("%s is a %s with flags %08x", property.GetNameAsCStr(), propertyType.GetName(), (unsigned int) propertyFlags);
+	if ((propertyFlags & FbxPropertyFlags::EFlags::eHidden) != 0)
+	{
+		return;	
+	}
 	wxPGProperty *propertyNode = nullptr;
 	EFbxType proptype(propertyType.GetType());
 	switch (proptype)
@@ -462,7 +469,15 @@ void FbxConverterDialog::LeafProperty(wxPropertyGrid* propertyGrid, FbxProperty 
 		propertyNode = propertyGrid->AppendIn(parentCategory, strProp);
 		break;
 	}
-
+	case EFbxType::eFbxEnum:
+	{
+		FbxPropertyT<FbxEnum> fbxEnum(property);
+		int index = fbxEnum.Get();
+		wxStringProperty *enumStr = new wxStringProperty(property.GetLabel().Buffer(), 	property.GetNameAsCStr(), property.GetEnumValue(index));
+		// TO DO - needs to be an actual enum / combobox style prop
+		propertyNode = propertyGrid->AppendIn(parentCategory, enumStr);
+		break;
+	}
 	default:
 		wxLogDebug("Unhandled type");
 		break;
@@ -549,40 +564,41 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 	// now we have the file to import
 	wxString fileToImport(openFileDialog.GetPath());
 	wxProgressDialog progress(wxT("Scene Import"), 	wxString::Format(wxT("Reading %s"), fileToImport.c_str()).c_str(), 100, this);
- 	
+
+	// Create an empty fbx scene
+	FbxScene *fbxScene = FbxScene::Create(FbxConverterApp::fbxManager, "Main Scene");
+
 	// Create an importer.
 	FbxImporter *fbxImporter = FbxImporter::Create(FbxConverterApp::fbxManager, "");
     progress.Update(2, wxT("Created Importer"));
 
 	// Initialize the importer by providing a filename.
-	const bool bImportStatus = fbxImporter->Initialize(openFileDialog.GetPath().c_str(), -1, FbxConverterApp::fbxManager->GetIOSettings());
+	const bool bImportStatus = fbxImporter->Initialize(openFileDialog.GetPath().c_str(), -1, sourceIOSettings);
 	if (bImportStatus)
 	{
 		int FileMajor, FileMinor, FileRevision;
 		fbxImporter->GetFileVersion(FileMajor, FileMinor, FileRevision);
 		
 		// Get the io settings for the importer
-		FbxIOSettings *fbxIOSettings = fbxImporter->GetIOSettings();
-		if (fbxImporter->IsFBX())
-		{
-			wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor, FileMinor, FileRevision);
-			int animStackCount = fbxImporter->GetAnimStackCount();
-			wxLogDebug("Number of animation stacks %d", animStackCount);
-			wxLogDebug("Current animation stack:\"%s\"", fbxImporter->GetActiveAnimStackName().Buffer());
-			for (int i = 0; i < animStackCount; ++i)
-			{
-				FbxTakeInfo *takeInfo = fbxImporter->GetTakeInfo(i);
+		FbxIOSettings *fbxIOSettings = sourceIOSettings;
+		// {
+		// 	wxLogDebug("FBX file format version is %d.%d.%d\n\n", FileMajor, FileMinor, FileRevision);
+		// 	wxLogDebug("Number of animation stacks %d", animStackCount);
+		// 	wxLogDebug("Current animation stack:\"%s\"", fbxImporter->GetActiveAnimStackName().Buffer());
+		// 	for (int i = 0; i < animStackCount; ++i)
+		// 	{
+		// 		FbxTakeInfo *takeInfo = fbxImporter->GetTakeInfo(i);
 
-				wxLogDebug("Animation stack %d", i);
-				wxLogDebug("Name:\"%s\"", takeInfo->mName.Buffer());
-				wxLogDebug("Description:\"%s\"", takeInfo->mDescription.Buffer());
-				wxLogDebug("Import name:\"%s\"", takeInfo->mImportName.Buffer());
-				wxLogDebug("Import state%s", takeInfo->mSelect ? "true" : "false");
-			}
-		}
-		FbxScene *fbxScene = FbxScene::Create(FbxConverterApp::fbxManager, openFileDialog.GetFilename().c_str());
+		// 		wxLogDebug("Animation stack %d", i);
+		// 		wxLogDebug("Name:\"%s\"", takeInfo->mName.Buffer());
+		// 		wxLogDebug("Description:\"%s\"", takeInfo->mDescription.Buffer());
+		// 		wxLogDebug("Import name:\"%s\"", takeInfo->mImportName.Buffer());
+		// 		wxLogDebug("Import state%s", takeInfo->mSelect ? "true" : "false");
+		// 	}
+		// }
 		if (fbxScene)
 		{
+			fbxImporter->Import(fbxScene);
 		    progress.Pulse(wxT("Importing Scene"));
 			bool importStatus = fbxImporter->Import(fbxScene);
 			if (importStatus)
@@ -609,7 +625,7 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					mainScene = fbxScene;
 					saveFileButton->Enable(true);
 				    progress.Pulse(wxT("Updating options Scene"));
-					UpdateSourcePG(FbxConverterApp::fbxManager->GetIOSettings());
+					UpdateSourcePG(sourceIOSettings);
 				    progress.Pulse(wxT("Traversing Scene"));
 					UpdateSceneTree();
 					FbxAxisSystem axisSystem(mainScene->GetGlobalSettings().GetAxisSystem());
@@ -629,16 +645,16 @@ void FbxConverterDialog::OnOpenFbxFile(wxCommandEvent &event)
 					fbxSourceHandedness->AppendText(HandednessString);
 					FbxSystemUnit units(mainScene->GetGlobalSettings().GetSystemUnit());
 					fbxSourceUnitsText->AppendText(GetUnitsDescription(units));
-				// 	int modelCount = mainScene->GetModelCount();
-				// 	int characterCount = mainScene->GetCharacterCount();
-				// 	int characterPoseCount = mainScene->GetCharacterPoseCount();
-				// 	int poseCount = mainScene->GetPoseCount();
-				// 	int materialCount = mainScene->GetMaterialCount();
-				// 	int textureCount  = mainScene->GetTextureCount();
-				// 	int nodeCount = mainScene->GetNodeCount();
-				// 	int geometryCount = mainScene->GetGeometryCount();
-				// 	int videoCount = mainScene->GetVideoCount();
-				// 	int genericNodeCount = mainScene->GetGenericNodeCount();
+					// int modelCount = mainScene->GetModelCount();
+					// int characterCount = mainScene->GetCharacterCount();
+					// int characterPoseCount = mainScene->GetCharacterPoseCount();
+					// int poseCount = mainScene->GetPoseCount();
+					// int materialCount = mainScene->GetMaterialCount();
+					// int textureCount  = mainScene->GetTextureCount();
+					// int nodeCount = mainScene->GetNodeCount();
+					// int geometryCount = mainScene->GetGeometryCount();
+					// int videoCount = mainScene->GetVideoCount();
+					// int genericNodeCount = mainScene->GetGenericNodeCount();
 				}
 			}
 			else
@@ -719,7 +735,7 @@ void FbxConverterDialog::OnSaveFbxFile(wxCommandEvent &event)
 	ConvertToDestAxisSystemAndUnits(system, units);
 	FbxExporter *fbxExporter = FbxExporter::Create(FbxConverterApp::fbxManager, "");
 	int saveFormatIndex = saveFileDialog.GetFilterIndex();
-	bool bExporterInitialised = fbxExporter->Initialize(fileToExport.c_str(), saveFormatIndex, FbxConverterApp::fbxManager->GetIOSettings());
+	bool bExporterInitialised = fbxExporter->Initialize(fileToExport.c_str(), saveFormatIndex, destIOSettings);
 	if (bExporterInitialised)
 	{
 		if (fbxExporter->IsFBX())
@@ -767,7 +783,7 @@ void FbxConverterDialog::UpdateSourcePG(FbxIOSettings *fbxIOSettings)
 	} 
 }
 
-void FbxConverterDialog::UpdateDestPG()
+void FbxConverterDialog::UpdateDestPG(FbxIOSettings *fbxIOSettings)
 {
 	wxString formatExtension = writerFormatExtension[currentWriterFormat];
 	std::vector<wxString>& writerFormatOptions = writerOptionsMap[formatExtension];
@@ -775,7 +791,6 @@ void FbxConverterDialog::UpdateDestPG()
 	{
 		// TODO : Have the property dialog handle vectors of properties, not single item
 		wxString propertyPath = writerFormatOptions[0];
-		FbxIOSettings *fbxIOSettings = FbxConverterApp::fbxManager->GetIOSettings();
 		// TODO : Property walk over destination grid, also
 		FbxProperty IoSettingsRoot(fbxIOSettings->GetProperty(propertyPath.c_str()));
 		PropertyWalk(fbxDestPropertyGrid, IoSettingsRoot);
